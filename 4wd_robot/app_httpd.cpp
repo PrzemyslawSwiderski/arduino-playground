@@ -1,12 +1,8 @@
-// WARNING!!! Make sure that you have either selected ESP32 Wrover Module,
-//            or another board which has PSRAM enabled
-// Adafruit ESP32 Feather
 #include "esp_http_server.h"
 #include "esp_timer.h"
 #include "esp_camera.h"
 #include "img_converters.h"
 #include "Arduino.h"
-
 
 
 #define LEFT_M0 13
@@ -19,6 +15,9 @@ const int freq = 2000;
 const int motorPWMChannnel = 8;
 const int lresolution = 8;
 volatile unsigned int motor_speed = 100;
+
+extern void changeWifiMode();
+
 void robot_setup();
 void robot_stop();
 void robot_fwd();
@@ -32,14 +31,14 @@ unsigned int get_speed(unsigned int sp) {
 }
 
 void robot_setup() {
-  ledcSetup(3, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcSetup(4, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcSetup(5, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcSetup(6, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcAttachPin(LEFT_M0, 3);   //IO13
-  ledcAttachPin(LEFT_M1, 4);   //IO12
-  ledcAttachPin(RIGHT_M0, 5);  //IO14
-  ledcAttachPin(RIGHT_M1, 6);  //IO15
+  ledcSetdup(3, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
+  ledcSetdup(4, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
+  ledcSetdup(5, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
+  ledcSetdup(6, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
+  ledcAttdachPin(LEFT_M0, 3);   //IO13
+  ledcAttdachPin(LEFT_M1, 4);   //IO12
+  ledcAttdachPin(RIGHT_M0, 5);  //IO14
+  ledcAttdachPin(RIGHT_M1, 6);  //IO15
 
   pinMode(33, OUTPUT);
   robot_stop();
@@ -374,34 +373,6 @@ static esp_err_t status_handler(httpd_req_t *req) {
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
   return httpd_resp_send(req, json_response, strlen(json_response));
 }
-/*
- static esp_err_t index_handler(httpd_req_t *req){
-     httpd_resp_set_type(req, "text/html");
-     String page = "";
-  page += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0\">\n";
-  page += "<script>var xhttp = new XMLHttpRequest();</script>";
-  page += "<script>function getsend(arg) { xhttp.open('GET', arg +'?' + new Date().getTime(), true); xhttp.send() } </script>";
-  //page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:280px;'></p><br/><br/>";
-  page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:300px; transform:rotate(0deg);'></p><br/><br/>";
- 
-  page += "<p align=center> <button style=background-color:lightgrey;width:90px;height:80px onmousedown=getsend('go') onmouseup=getsend('stop') ontouchstart=getsend('go') ontouchend=getsend('stop') ><b>Forward</b></button> </p>";
-  page += "<p align=center>";
-  page += "<button style=background-color:lightgrey;width:90px;height:80px; onmousedown=getsend('left') onmouseup=getsend('stop') ontouchstart=getsend('left') ontouchend=getsend('stop')><b>Left</b></button>&nbsp;";
-  page += "<button style=background-color:indianred;width:90px;height:80px onmousedown=getsend('stop') onmouseup=getsend('stop')><b>Stop</b></button>&nbsp;";
-  page += "<button style=background-color:lightgrey;width:90px;height:80px onmousedown=getsend('right') onmouseup=getsend('stop') ontouchstart=getsend('right') ontouchend=getsend('stop')><b>Right</b></button>";
-  page += "</p>";
-
-  page += "<p align=center><button style=background-color:lightgrey;width:90px;height:80px onmousedown=getsend('back') onmouseup=getsend('stop') ontouchstart=getsend('back') ontouchend=getsend('stop') ><b>Backward</b></button></p>";  
-
-  page += "<p align=center>";
-  page += "<button style=background-color:yellow;width:140px;height:40px onmousedown=getsend('ledon')><b>Light ON</b></button>";
-  page += "<button style=background-color:yellow;width:140px;height:40px onmousedown=getsend('ledoff')><b>Light OFF</b></button>";
-  page += "</p>";
- 
-     return httpd_resp_send(req, &page[0], strlen(&page[0]));
- }
-*/
-
 
 static esp_err_t index_handler(httpd_req_t *req) {
   httpd_resp_set_type(req, "text/html");
@@ -412,7 +383,6 @@ static esp_err_t index_handler(httpd_req_t *req) {
   page += "<script>var xhttp = new XMLHttpRequest();</script>";
   page += "<script>function getsend(arg) { xhttp.open('GET', arg +'?' + new Date().getTime(), true); xhttp.send() } </script>";
   page += "<p align=center>ARDUINO HOME</p>";
-  //page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:280px;'></p><br/><br/>";
   page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:300px; transform:rotate(0deg);'></p><br/><br/>";
   page += "<div unselectable=\"on\" onselectstart=\"return false\">";
   page += "<p align=center> <button style=background-color:Green;width:90px;height:80px onmousedown=getsend('go') onmouseup=getsend('stop') ontouchstart=getsend('go') ontouchend=getsend('stop') ><b>Forward</b></button> </p>";
@@ -428,18 +398,13 @@ static esp_err_t index_handler(httpd_req_t *req) {
   page += "<button style=background-color:yellow;width:140px;height:40px onmousedown=getsend('ledon')><b>Light ON</b></button>";
   page += "<button style=background-color:yellow;width:140px;height:40px onmousedown=getsend('ledoff')><b>Light OFF</b></button>";
   page += "</p>";
+  page += "<p align=center>";
+  page += "<button style=background-color:green;width:140px;height:40px onmousedown=getsend('wifi-mode')><b>Wifi mode</b></button>";
+  page += "</p>";
   page += "</div>";
 
   return httpd_resp_send(req, &page[0], strlen(&page[0]));
 }
-
-
-
-
-
-
-
-
 
 
 static esp_err_t go_handler(httpd_req_t *req) {
@@ -489,6 +454,13 @@ static esp_err_t ledon_handler(httpd_req_t *req) {
 static esp_err_t ledoff_handler(httpd_req_t *req) {
   digitalWrite(gpLed, LOW);
   Serial.println("LED OFF");
+  httpd_resp_set_type(req, "text/html");
+  return httpd_resp_send(req, "OK", 2);
+}
+
+static esp_err_t wifi_mode_handler(httpd_req_t *req) {
+  Serial.println("WIFI MODE");
+  changeWifiMode();
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
@@ -580,11 +552,18 @@ void startCameraServer() {
     .user_ctx = NULL
   };
 
+  httpd_uri_t wifi_mode_uri = {
+    .uri = "/wifi-mode",
+    .method = HTTP_GET,
+    .handler = wifi_mode_handler,
+    .user_ctx = NULL
+  };
 
   ra_filter_init(&ra_filter, 20);
   Serial.printf("Starting web server on port: '%d'", config.server_port);
+  Serial.println();
 
-  config.max_uri_handlers = 50;
+  config.max_uri_handlers = 20;
   if (httpd_start(&camera_httpd, &config) == ESP_OK) {
     httpd_register_uri_handler(camera_httpd, &index_uri);
     httpd_register_uri_handler(camera_httpd, &go_uri);
@@ -597,11 +576,13 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &ledoff_uri);
     httpd_register_uri_handler(camera_httpd, &cmd_uri);
     httpd_register_uri_handler(camera_httpd, &capture_uri);
+    httpd_register_uri_handler(camera_httpd, &wifi_mode_uri);
   }
 
   config.server_port += 1;
   config.ctrl_port += 1;
   Serial.printf("Starting stream server on port: '%d'", config.server_port);
+  Serial.println();
   if (httpd_start(&stream_httpd, &config) == ESP_OK) {
     httpd_register_uri_handler(stream_httpd, &stream_uri);
   }
