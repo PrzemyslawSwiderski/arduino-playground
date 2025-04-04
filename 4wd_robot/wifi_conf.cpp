@@ -1,10 +1,14 @@
 #include "secrets.h"
 #include <WiFi.h>
+#include "wifi_conf.h"
 
-bool isAPMode = false;
 String WiFiAddr = "";
 
-void startAsClient() {
+static bool isAPMode = false;
+
+namespace {
+
+void start_as_client() {
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -16,7 +20,7 @@ void startAsClient() {
   isAPMode = false;
 }
 
-void startAsAP() {
+void start_as_ap() {
   WiFi.softAP(AP_WIFI_SSID, AP_WIFI_PASS);
   IPAddress myIP = WiFi.softAPIP();
   Serial.print("AP IP address: ");
@@ -25,33 +29,35 @@ void startAsAP() {
   isAPMode = true;
 }
 
-void stopWiFi() {
+void stop_wifi() {
   WiFi.disconnect(true);  // Disconnect and turn off Wi-Fi
   WiFi.mode(WIFI_OFF);    // Ensure Wi-Fi is fully off
   delay(100);             // Give it time to settle
 }
 
-void printIpInfo() {
+void print_ip_info() {
   Serial.print("Robot Ready! Use 'http://");
   Serial.print(WiFiAddr);
   Serial.println("' to connect");
 }
 
-void changeWifiMode() {
+}
+
+void change_wifi_mode() {
   // Toggle mode
   if (isAPMode) {
     Serial.println("Switching to Client mode...");
-    stopWiFi();       // Disconnect current mode
-    startAsClient();  // Start Client mode
+    stop_wifi();        // Disconnect current mode
+    start_as_client();  // Start Client mode
   } else {
     Serial.println("Switching to AP mode...");
-    stopWiFi();   // Disconnect current mode
-    startAsAP();  // Start AP mode
+    stop_wifi();    // Disconnect current mode
+    start_as_ap();  // Start AP mode
   }
-  printIpInfo();
+  print_ip_info();
 }
 
-void initWifi() {
-  startAsClient();
-  printIpInfo();
+void init_wifi() {
+  start_as_client();
+  print_ip_info();
 }

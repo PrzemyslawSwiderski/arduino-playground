@@ -57,3 +57,6 @@ secrets.h
 # Intellij
 *.iml
 .idea
+
+# Certs
+*.pem

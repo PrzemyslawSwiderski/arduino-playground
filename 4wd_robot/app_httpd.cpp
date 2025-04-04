@@ -1,96 +1,16 @@
+#include "pins.h"
 #include "esp_http_server.h"
 #include "esp_timer.h"
 #include "esp_camera.h"
 #include "img_converters.h"
 #include "Arduino.h"
+#include "wifi_conf.h"
+#include "robot.h"
 
 
-#define LEFT_M0 13
-#define LEFT_M1 12
-#define RIGHT_M0 14
-#define RIGHT_M1 15
-int speed = 150;
-int noStop = 0;
-const int freq = 2000;
-const int motorPWMChannnel = 8;
-const int lresolution = 8;
-volatile unsigned int motor_speed = 100;
-
-extern void changeWifiMode();
-
-void robot_setup();
-void robot_stop();
-void robot_fwd();
-void robot_back();
-void robot_left();
-void robot_right();
-volatile unsigned long previous_time = 0;
-volatile unsigned long move_interval = 250;
-unsigned int get_speed(unsigned int sp) {
-  return map(sp, 0, 100, 0, 255);
-}
-
-void robot_setup() {
-  ledcSetdup(3, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcSetdup(4, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcSetdup(5, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcSetdup(6, 2000, 8);       /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcAttdachPin(LEFT_M0, 3);   //IO13
-  ledcAttdachPin(LEFT_M1, 4);   //IO12
-  ledcAttdachPin(RIGHT_M0, 5);  //IO14
-  ledcAttdachPin(RIGHT_M1, 6);  //IO15
-
-  pinMode(33, OUTPUT);
-  robot_stop();
-}
-
-// Motor Control Functions
-
-void update_speed() {
-  ledcWrite(motorPWMChannnel, get_speed(motor_speed));
-}
-
-void robot_stop() {
-  ledcWrite(3, 0);
-  ledcWrite(4, 0);
-  ledcWrite(5, 0);
-  ledcWrite(6, 0);
-}
-
-void robot_fwd() {
-  ledcWrite(3, 0);
-  ledcWrite(4, speed);
-  ledcWrite(5, 0);
-  ledcWrite(6, speed);
-}
-
-void robot_back() {
-  ledcWrite(3, speed);
-  ledcWrite(4, 0);
-  ledcWrite(5, speed);
-  ledcWrite(6, 0);
-}
-
-void robot_right() {
-  ledcWrite(3, 0);
-  ledcWrite(4, speed);
-  ledcWrite(5, speed);
-  ledcWrite(6, 0);
-}
-
-void robot_left() {
-  ledcWrite(3, speed);
-  ledcWrite(4, 0);
-  ledcWrite(5, 0);
-  ledcWrite(6, speed);
-}
-
-
-extern int gpLed;
+extern void change_wifi_mode();
 
 extern String WiFiAddr;
-
-void WheelAct(int nLf, int nLb, int nRf, int nRb);
 
 typedef struct {
   size_t size;   //number of values used for filtering
@@ -408,14 +328,12 @@ static esp_err_t index_handler(httpd_req_t *req) {
 
 
 static esp_err_t go_handler(httpd_req_t *req) {
-  //WheelAct(HIGH, LOW, HIGH, LOW);
   robot_fwd();
   Serial.println("Go");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
 static esp_err_t back_handler(httpd_req_t *req) {
-  //WheelAct(LOW, HIGH, LOW, HIGH);
   robot_back();
   Serial.println("Back");
   httpd_resp_set_type(req, "text/html");
@@ -423,14 +341,12 @@ static esp_err_t back_handler(httpd_req_t *req) {
 }
 
 static esp_err_t left_handler(httpd_req_t *req) {
-  //WheelAct(HIGH, LOW, LOW, HIGH);
   robot_left();
   Serial.println("Left");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
 static esp_err_t right_handler(httpd_req_t *req) {
-  //WheelAct(LOW, HIGH, HIGH, LOW);
   robot_right();
   Serial.println("Right");
   httpd_resp_set_type(req, "text/html");
@@ -438,7 +354,6 @@ static esp_err_t right_handler(httpd_req_t *req) {
 }
 
 static esp_err_t stop_handler(httpd_req_t *req) {
-  //WheelAct(LOW, LOW, LOW, LOW);
   robot_stop();
   Serial.println("Stop");
   httpd_resp_set_type(req, "text/html");
@@ -446,13 +361,13 @@ static esp_err_t stop_handler(httpd_req_t *req) {
 }
 
 static esp_err_t ledon_handler(httpd_req_t *req) {
-  digitalWrite(gpLed, HIGH);
+  digitalWrite(LED_LIGHT_GPIO_NUM, HIGH);
   Serial.println("LED ON");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
 static esp_err_t ledoff_handler(httpd_req_t *req) {
-  digitalWrite(gpLed, LOW);
+  digitalWrite(LED_LIGHT_GPIO_NUM, LOW);
   Serial.println("LED OFF");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
@@ -460,7 +375,7 @@ static esp_err_t ledoff_handler(httpd_req_t *req) {
 
 static esp_err_t wifi_mode_handler(httpd_req_t *req) {
   Serial.println("WIFI MODE");
-  changeWifiMode();
+  change_wifi_mode();
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
