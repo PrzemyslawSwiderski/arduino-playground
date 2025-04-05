@@ -4,11 +4,11 @@
 #include "esp_camera.h"
 #include "img_converters.h"
 #include "Arduino.h"
-#include "wifi_conf.h"
-#include "robot.h"
+#include "wifiMod.h"
+#include "roverMod.h"
 
 
-extern void change_wifi_mode();
+extern void changeWifiMode();
 
 extern String WiFiAddr;
 
@@ -328,33 +328,33 @@ static esp_err_t index_handler(httpd_req_t *req) {
 
 
 static esp_err_t go_handler(httpd_req_t *req) {
-  robot_fwd();
+  roverFwd();
   Serial.println("Go");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
 static esp_err_t back_handler(httpd_req_t *req) {
-  robot_back();
+  roverBack();
   Serial.println("Back");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
 
 static esp_err_t left_handler(httpd_req_t *req) {
-  robot_left();
+  roverLeft();
   Serial.println("Left");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
 static esp_err_t right_handler(httpd_req_t *req) {
-  robot_right();
+  roverRight();
   Serial.println("Right");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }
 
 static esp_err_t stop_handler(httpd_req_t *req) {
-  robot_stop();
+  roverStop();
   Serial.println("Stop");
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
@@ -375,7 +375,7 @@ static esp_err_t ledoff_handler(httpd_req_t *req) {
 
 static esp_err_t wifi_mode_handler(httpd_req_t *req) {
   Serial.println("WIFI MODE");
-  change_wifi_mode();
+  changeWifiMode();
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, "OK", 2);
 }

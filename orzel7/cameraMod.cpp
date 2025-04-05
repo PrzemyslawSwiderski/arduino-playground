@@ -1,9 +1,9 @@
 #include "Arduino.h"
 #include "esp_camera.h"
 #include "pins.h"
-#include "camera.h"
+#include "cameraMod.h"
 
-void setup_camera() {
+void setupCameraMod() {
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -27,7 +27,7 @@ void setup_camera() {
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
   config.frame_size = FRAMESIZE_UXGA;
-  config.jpeg_quality = 10;
+  config.jpeg_quality = 30;
   config.fb_count = 2;
 
   // camera init
