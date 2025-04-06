@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "orzel7"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "arduino-playground",
+		"liveServer.settings.root": "/web-console"
+	}
+}

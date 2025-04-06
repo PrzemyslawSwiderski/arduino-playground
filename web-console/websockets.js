@@ -77,29 +77,7 @@ lightOffBtn.addEventListener('mousedown', (e) => {
     sendCmd('ledoff');
 });
 
-
-// State to track the last command and its timestamp
-let lastCmd = null;
-let lastSentTime = 0;
-const THROTTLE_DELAY = 200; // 200ms throttle period
-
 export function sendCmd(arg) {
-    const now = Date.now();
-    // Log the argument (unchanged)
-    console.log(arg);
-    // If the command is the same as the last one
-    if (lastCmd === arg) {
-        // Check if 200ms have passed since the last send
-        if (now - lastSentTime < THROTTLE_DELAY) {
-            // Too soon to send the same command, skip it
-            return;
-        }
-        // 200ms have passed, allow sending
-    }
-    // Send the command
     ws.send(arg);
-    // Update tracking state
-    lastCmd = arg;
-    lastSentTime = now;
 }
 

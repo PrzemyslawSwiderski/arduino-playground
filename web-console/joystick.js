@@ -2,9 +2,7 @@ import { sendCmd } from "./websockets.js";
 
 const joystickContainer = document.getElementById('joystick-container');
 const joystick = document.getElementById('joystick');
-const containerSize = 250;
-const joystickSize = 50;
-const maxDistance = (containerSize - joystickSize) / 2;
+const deadZoneMargin = 40;
 
 let isDragging = false;
 let lastX = 0; // Last known X position relative to container
@@ -20,26 +18,30 @@ function getCenterPosition() {
     };
 }
 
+let lastSentTime = 0;
+const THROTTLE_DELAY = 100; // throttle period in ms
+
 function moveJoystick(x, y) {
     const center = getCenterPosition();
     let dx = x - center.x;
     let dy = y - center.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (distance > maxDistance) {
-        dx = dx * maxDistance / distance;
-        dy = dy * maxDistance / distance;
-    }
 
     joystick.style.left = `${center.x + dx}px`;
     joystick.style.top = `${center.y + dy}px`;
 
+    const now = Date.now();
+    if (now - lastSentTime < THROTTLE_DELAY) {
+        // Too soon to send the same command, skip it
+        return;
+    }
+
     // Determine command based on angle
     const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
     let command = 'stop';
 
-    if (distance > 20) { // Dead zone
+    if (distance > deadZoneMargin) { // Dead zone
         if (angle >= -45 && angle < 45) command = 'right';
         else if (angle >= 45 && angle < 135) command = 'back';
         else if (angle >= 135 || angle < -135) command = 'left';
@@ -47,6 +49,16 @@ function moveJoystick(x, y) {
     }
 
     sendCmd(command);
+    lastSentTime = now;
+}
+
+function resetJoystick() {
+    const center = getCenterPosition();
+
+    joystick.style.left = `${center.x}px`;
+    joystick.style.top = `${center.y}px`;
+
+    sendCmd('stop');
 }
 
 function updateJoystick() {
@@ -87,8 +99,7 @@ document.addEventListener('mouseup', () => {
         }
 
         // Reset to center
-        const center = getCenterPosition();
-        moveJoystick(center.x, center.y);
+        resetJoystick();
     }
 });
 
@@ -125,9 +136,7 @@ document.addEventListener('touchend', (e) => {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
         }
-        // Reset to center
-        const center = getCenterPosition();
-        moveJoystick(center.x, center.y);
+        resetJoystick();
     }
 });
 
@@ -140,8 +149,6 @@ document.addEventListener('touchcancel', () => {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
         }
-        // Reset to center
-        const center = getCenterPosition();
-        moveJoystick(center.x, center.y);
+        resetJoystick();
     }
 });

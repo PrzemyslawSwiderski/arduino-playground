@@ -12,64 +12,86 @@ static unsigned long lastFrameTime = 0;
 static unsigned long lastPrintTime = 0;
 static unsigned long lastHeartbeatTime = 0;
 
-const unsigned long FRAME_INTERVAL = 100;     // 100 ms = ~10 FPS
-const unsigned long PRINT_USAGE_INTERVAL = 5000;  // 5 seconds in milliseconds
+const unsigned long FRAME_INTERVAL = 100;        // 100 ms = ~10 FPS
+const unsigned long PRINT_USAGE_INTERVAL = 5000; // 5 seconds in milliseconds
 const unsigned long HEARTBEAT_INTERVAL = 5000;
 
-static void handleDataEvent(AsyncWebSocketClient *client, void *arg, uint8_t *data, size_t len) {
+static void handleDataEvent(AsyncWebSocketClient *client, void *arg, uint8_t *data, size_t len)
+{
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
-  if (info->opcode == WS_TEXT) {
+  if (info->opcode == WS_TEXT)
+  {
     String message = String((char *)data, len);
     Serial.println("Received: " + message);
 
-    if (message == "go") {
+    if (message == "go")
+    {
       roverFwd();
-    } else if (message == "stop") {
+    }
+    else if (message == "stop")
+    {
       roverStop();
-    } else if (message == "left") {
+    }
+    else if (message == "left")
+    {
       roverLeft();
-    } else if (message == "right") {
+    }
+    else if (message == "right")
+    {
       roverRight();
-    } else if (message == "back") {
+    }
+    else if (message == "back")
+    {
       roverBack();
-    } else if (message == "ledon") {
+    }
+    else if (message == "ledon")
+    {
       ledOn();
-    } else if (message == "ledoff") {
+    }
+    else if (message == "ledoff")
+    {
       ledOff();
-    } else {
+    }
+    else
+    {
       client->text("Unrecognized message: " + message);
     }
   }
 }
 
-static void sendHeartbeat() {
-  ws.textAll("{\"type\":\"heartbeat\"}");  // Simple keep-alive message
+static void sendHeartbeat()
+{
+  ws.textAll("{\"type\":\"heartbeat\"}"); // Simple keep-alive message
   Serial.println("Sent heartbeat");
 }
 
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("Client connected: ID %lu, IP %s\n", client->id(), client->remoteIP().toString().c_str());
-      client->text("Hello from ESP32-CAM!");
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("Client disconnected: ID %lu at %lu ms\n", (unsigned long)client->id(), millis());
-      break;
-    case WS_EVT_ERROR:
-      Serial.printf("Error with client %lu: %s\n", (unsigned long)client->id(), (char *)data);
-      break;
-    case WS_EVT_DATA:
-      handleDataEvent(client, arg, data, len);
-      break;
-    default:
-      break;
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+  switch (type)
+  {
+  case WS_EVT_CONNECT:
+    Serial.printf("Client connected: ID %lu, IP %s\n", client->id(), client->remoteIP().toString().c_str());
+    client->text("Hello from ESP32-CAM!");
+    break;
+  case WS_EVT_DISCONNECT:
+    Serial.printf("Client disconnected: ID %lu at %lu ms\n", (unsigned long)client->id(), millis());
+    break;
+  case WS_EVT_ERROR:
+    Serial.printf("Error with client %lu: %s\n", (unsigned long)client->id(), (char *)data);
+    break;
+  case WS_EVT_DATA:
+    handleDataEvent(client, arg, data, len);
+    break;
+  default:
+    break;
   }
 }
 
-void streamVideo() {
+void streamVideo()
+{
   camera_fb_t *fb = esp_camera_fb_get();
-  if (!fb) {
+  if (!fb)
+  {
     Serial.println("Camera capture failed");
     return;
   }
@@ -80,11 +102,12 @@ void streamVideo() {
   esp_camera_fb_return(fb);
 }
 
-void printUsageInfo() {
+void printUsageInfo()
+{
   Serial.printf("Current connected clients: %u\n", ws.count());
   size_t totalHeapSize = ESP.getHeapSize();
   size_t freeHeap = ESP.getFreeHeap();
-  float freeHeapPercent = (freeHeap * 100.0) / totalHeapSize;  // Calculate percentage
+  float freeHeapPercent = (freeHeap * 100.0) / totalHeapSize; // Calculate percentage
   Serial.printf("Free Heap: %u bytes (%.2f%% of %u total)\n", freeHeap, freeHeapPercent, totalHeapSize);
 }
 
@@ -95,7 +118,8 @@ void printUsageInfo() {
 //   printUsageInfo();
 // }
 
-void setupWebSocketMod() {
+void setupWebSocketMod()
+{
   ws.onEvent(onWsEvent);
   server.addHandler(&ws);
 
@@ -103,7 +127,8 @@ void setupWebSocketMod() {
   Serial.println("Secure WebSocket server started on ws://<your-ip>:443/ws");
 }
 
-void loopWebSocketMod() {
+void loopWebSocketMod()
+{
   runEvery(lastFrameTime, FRAME_INTERVAL, streamVideo);
   runEvery(lastPrintTime, PRINT_USAGE_INTERVAL, printUsageInfo);
   runEvery(lastHeartbeatTime, HEARTBEAT_INTERVAL, sendHeartbeat);

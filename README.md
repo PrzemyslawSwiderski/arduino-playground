@@ -18,4 +18,4 @@ C:\Users\PSWIDERSKI\Desktop\ARDUINO\Sketches\libraries
 
 chrome://flags/#unsafely-treat-insecure-origin-as-secure
 
-ws://192.168.4.1:443
+ws://192.168.4.1:443, ws://192.168.1.39:443

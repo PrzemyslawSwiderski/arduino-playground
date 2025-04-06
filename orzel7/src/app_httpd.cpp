@@ -7,7 +7,6 @@
 // #include "wifiMod.h"
 // #include "roverMod.h"
 
-
 // extern void changeWifiMode();
 
 // extern String WiFiAddr;

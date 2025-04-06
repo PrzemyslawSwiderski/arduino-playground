@@ -3,7 +3,8 @@
 #include "pins.h"
 #include "cameraMod.h"
 
-void setupCameraMod() {
+void setupCameraMod()
+{
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -32,12 +33,13 @@ void setupCameraMod() {
 
   // camera init
   esp_err_t err = esp_camera_init(&config);
-  if (err != ESP_OK) {
+  if (err != ESP_OK)
+  {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
   }
 
-  //drop down frame size for higher initial frame rate
-  sensor_t* s = esp_camera_sensor_get();
+  // drop down frame size for higher initial frame rate
+  sensor_t *s = esp_camera_sensor_get();
   s->set_framesize(s, FRAMESIZE_CIF);
 }

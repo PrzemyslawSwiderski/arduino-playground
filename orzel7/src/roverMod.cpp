@@ -7,9 +7,10 @@ static int speed = 150;
 static const int freq = 2000;
 static const int lresolution = 8;
 static unsigned long lastMovementTime = 0;
-static const unsigned long AUTO_STOP_DELAY_TIME = 1000;  // 1 seconds
+static const unsigned long AUTO_STOP_DELAY_TIME = 200; // time to auto stop in ms
 
-void setupRoverMod() {
+void setupRoverMod()
+{
   digitalWrite(LED_LIGHT_GPIO_NUM, LOW);
 
   ledcAttach(LEFT_BACK_MOTOR, freq, lresolution); /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
@@ -18,14 +19,16 @@ void setupRoverMod() {
   ledcAttach(RIGHT_FRONT_MOTOR, freq, lresolution);
 }
 
-void roverStop() {
+void roverStop()
+{
   ledcWrite(LEFT_BACK_MOTOR, 0);
   ledcWrite(LEFT_FRONT_MOTOR, 0);
   ledcWrite(RIGHT_BACK_MOTOR, 0);
   ledcWrite(RIGHT_FRONT_MOTOR, 0);
 }
 
-void roverFwd() {
+void roverFwd()
+{
   ledcWrite(LEFT_BACK_MOTOR, 0);
   ledcWrite(LEFT_FRONT_MOTOR, speed);
   ledcWrite(RIGHT_BACK_MOTOR, 0);
@@ -33,7 +36,8 @@ void roverFwd() {
   lastMovementTime = millis();
 }
 
-void roverBack() {
+void roverBack()
+{
   ledcWrite(LEFT_BACK_MOTOR, speed);
   ledcWrite(LEFT_FRONT_MOTOR, 0);
   ledcWrite(RIGHT_BACK_MOTOR, speed);
@@ -41,7 +45,8 @@ void roverBack() {
   lastMovementTime = millis();
 }
 
-void roverRight() {
+void roverRight()
+{
   ledcWrite(LEFT_BACK_MOTOR, 0);
   ledcWrite(LEFT_FRONT_MOTOR, speed);
   ledcWrite(RIGHT_BACK_MOTOR, speed);
@@ -49,7 +54,8 @@ void roverRight() {
   lastMovementTime = millis();
 }
 
-void roverLeft() {
+void roverLeft()
+{
   ledcWrite(LEFT_BACK_MOTOR, speed);
   ledcWrite(LEFT_FRONT_MOTOR, 0);
   ledcWrite(RIGHT_BACK_MOTOR, 0);
@@ -57,21 +63,26 @@ void roverLeft() {
   lastMovementTime = millis();
 }
 
-void ledOn() {
+void ledOn()
+{
   digitalWrite(LED_LIGHT_GPIO_NUM, HIGH);
 }
 
-void ledOff() {
+void ledOff()
+{
   digitalWrite(LED_LIGHT_GPIO_NUM, LOW);
 }
 
-static void autoStop() {
+static void autoStop()
+{
   unsigned long currentTime = millis();
-  if (isTimeAfter(currentTime, lastMovementTime, AUTO_STOP_DELAY_TIME)) {
+  if (isTimeAfter(currentTime, lastMovementTime, AUTO_STOP_DELAY_TIME))
+  {
     roverStop();
   }
 }
 
-void loopRoverMod() {
+void loopRoverMod()
+{
   autoStop();
 }

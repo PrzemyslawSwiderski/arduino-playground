@@ -6,7 +6,8 @@
 #include "wifiMod.h"
 #include "webSocketMod.h"
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   // Serial.setDebugOutput(true);
   Serial.println();
@@ -22,7 +23,8 @@ void setup() {
   digitalWrite(RED_LIGHT_GPIO_NUM, LOW);
 }
 
-void loop() {
+void loop()
+{
   loopWebSocketMod();
   loopRoverMod();
 }
