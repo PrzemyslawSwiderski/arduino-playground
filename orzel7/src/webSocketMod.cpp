@@ -9,11 +9,11 @@ static AsyncWebServer server(443);
 static AsyncWebSocket ws("/ws");
 
 static unsigned long lastFrameTime = 0;
-static unsigned long lastCleanupTime = 0;
+static unsigned long lastPrintTime = 0;
 static unsigned long lastHeartbeatTime = 0;
 
 const unsigned long FRAME_INTERVAL = 100;     // 100 ms = ~10 FPS
-const unsigned long CLEANUP_INTERVAL = 5000;  // 5 seconds in milliseconds
+const unsigned long PRINT_USAGE_INTERVAL = 5000;  // 5 seconds in milliseconds
 const unsigned long HEARTBEAT_INTERVAL = 5000;
 
 static void handleDataEvent(AsyncWebSocketClient *client, void *arg, uint8_t *data, size_t len) {
@@ -81,18 +81,19 @@ void streamVideo() {
 }
 
 void printUsageInfo() {
+  Serial.printf("Current connected clients: %u\n", ws.count());
   size_t totalHeapSize = ESP.getHeapSize();
   size_t freeHeap = ESP.getFreeHeap();
   float freeHeapPercent = (freeHeap * 100.0) / totalHeapSize;  // Calculate percentage
   Serial.printf("Free Heap: %u bytes (%.2f%% of %u total)\n", freeHeap, freeHeapPercent, totalHeapSize);
 }
 
-void cleanupClients() {
-  ws.cleanupClients();
-  Serial.println("Cleaned up WebSocket clients");
-  Serial.printf("Current connected clients: %u\n", ws.count());
-  printUsageInfo();
-}
+// void cleanupClients() {
+//   ws.cleanupClients();
+//   Serial.println("Cleaned up WebSocket clients");
+//   Serial.printf("Current connected clients: %u\n", ws.count());
+//   printUsageInfo();
+// }
 
 void setupWebSocketMod() {
   ws.onEvent(onWsEvent);
@@ -104,6 +105,6 @@ void setupWebSocketMod() {
 
 void loopWebSocketMod() {
   runEvery(lastFrameTime, FRAME_INTERVAL, streamVideo);
-  runEvery(lastCleanupTime, CLEANUP_INTERVAL, cleanupClients);
+  runEvery(lastPrintTime, PRINT_USAGE_INTERVAL, printUsageInfo);
   runEvery(lastHeartbeatTime, HEARTBEAT_INTERVAL, sendHeartbeat);
 }
