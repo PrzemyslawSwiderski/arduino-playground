@@ -16,20 +16,23 @@
 <body>
     <div class="container text-center">
         <h1>Orzeł 7 Console</h1>
-        <div id="error-banner" class="row justify-content-center mb-3">
-            <div class="col-12 col-md-6">WebSocket Connection Failed</div>
+        <div class="row justify-content-center">
+            <div id="error-banner" class="alert alert-danger" role="alert">
+                Connection failed
+            </div>
         </div>
-        <div class="row justify-content-center mb-3">
-            <div class="col-8 col-md-4">
+        <div class="row justify-content-center">
+            <div class="col-8">
                 <select id="websocket-address" class="form-select">
                     <option value="192.168.1.39" selected>Client</option>
                     <option value="192.168.4.1">Access Point</option>
                 </select>
             </div>
-            <div class="col-4 col-md-2">
-                <button id="connect-btn" class="btn btn-connect w-100">Connect</button>
+            <div class="col-4">
+                <button id="connect-btn" class="btn btn-connect">Connect</button>
             </div>
         </div>
+        <br />
         <div class="row justify-content-center">
             <div class="col-12 col-md-6">
                 <img id="stream" src="" width="320" height="240" alt="Camera Stream" class="img-fluid">
@@ -45,6 +48,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="control-panel card bg-dark text-white">
+            <div class="card-body">
                 <!-- Lights Row -->
                 <div class="row justify-content-center mt-3">
                     <div class="col-6 col-md-3">

@@ -51,7 +51,7 @@ h1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 141%;
+    width: 120%;
     height: 2px;
     background-color: #00cc00;
     opacity: 0.5;
@@ -66,7 +66,7 @@ h1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 141%;
+    width: 120%;
     height: 2px;
     background-color: #00cc00;
     opacity: 0.5;
@@ -119,13 +119,6 @@ h1 {
     font-size: 1.5em;
 }
 
-.form-select,
-.btn-connect {
-    background-color: #333;
-    color: #fff;
-    border-color: #00cc00;
-}
-
 .btn-connect {
     background-color: #00cc00;
     border: 2px solid #009900;
@@ -134,17 +127,6 @@ h1 {
 
 #error-banner {
     display: none;
-    top: 10px;
-    width: 80%;
-    max-width: 400px;
-    background-color: #ff3333;
-    color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px #ff3333;
-    text-align: center;
-    z-index: 1000;
-    opacity: 0;
     transition: opacity 0.5s;
 }
 
