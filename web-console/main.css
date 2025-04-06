@@ -1,0 +1,154 @@
+body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #00cc00;
+    text-shadow: 0 0 10px #00cc00;
+    margin-bottom: 30px;
+}
+
+#stream {
+    border: 4px solid #333;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+    max-width: 100%;
+    height: auto;
+}
+
+.control-panel {
+    user-select: none;
+    margin-top: 30px;
+    background-color: #2a2a2a;
+    border: 2px solid #00cc00;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 204, 0, 0.2);
+}
+
+.joystick-container {
+    position: relative;
+    width: 250px;
+    /* Updated size */
+    height: 250px;
+    /* Updated size */
+    background-color: #333;
+    border-radius: 50%;
+    border: 3px solid #00cc00;
+    box-shadow: 0 0 15px rgba(0, 204, 0, 0.3);
+    margin: 0 auto;
+}
+
+/* Diagonal line 1 (top-left to bottom-right) */
+.joystick-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 141%;
+    height: 2px;
+    background-color: #00cc00;
+    opacity: 0.5;
+    transform: translate(-50%, -50%) rotate(45deg);
+    transform-origin: center;
+    box-shadow: 0 0 5px #00cc00;
+}
+
+/* Diagonal line 2 (top-right to bottom-left) */
+.joystick-container::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 141%;
+    height: 2px;
+    background-color: #00cc00;
+    opacity: 0.5;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    transform-origin: center;
+    box-shadow: 0 0 5px #00cc00;
+}
+
+.joystick {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: #00cc00;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    box-shadow: 0 0 10px #00cc00;
+    z-index: 1;
+}
+
+.joystick.active {
+    background-color: #00ff00;
+}
+
+.btn-light {
+    background-color: #ffcc00;
+    color: #000;
+    border: 2px solid #cc9900;
+    box-shadow: 0 0 10px #ffcc00;
+}
+
+.btn {
+    font-weight: bold;
+    padding: 15px;
+    transition: transform 0.1s;
+    border-radius: 10px;
+}
+
+.btn:hover {
+    filter: brightness(1.2);
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.bi {
+    font-size: 1.5em;
+}
+
+.form-select,
+.btn-connect {
+    background-color: #333;
+    color: #fff;
+    border-color: #00cc00;
+}
+
+.btn-connect {
+    background-color: #00cc00;
+    border: 2px solid #009900;
+    box-shadow: 0 0 10px #00cc00;
+}
+
+#error-banner {
+    display: none;
+    top: 10px;
+    width: 80%;
+    max-width: 400px;
+    background-color: #ff3333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #ff3333;
+    text-align: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+#error-banner.show {
+    display: block;
+    opacity: 1;
+}
