@@ -28,3 +28,6 @@
 #define LEFT_FRONT_MOTOR 12
 #define RIGHT_BACK_MOTOR 14
 #define RIGHT_FRONT_MOTOR 15
+
+// PIR sensor
+#define PIR_SENSOR_PIN 2

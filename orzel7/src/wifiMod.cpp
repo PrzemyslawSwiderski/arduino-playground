@@ -2,7 +2,7 @@
 #include "secrets.h"
 #include "wifiMod.h"
 
-String WiFiAddr = "";
+static String WiFiAddr = "";
 
 static bool isAPMode = false;
 

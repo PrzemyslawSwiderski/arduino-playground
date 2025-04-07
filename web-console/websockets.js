@@ -1,10 +1,9 @@
 
 const img = document.getElementById('stream');
-const lightOnBtn = document.getElementById('light-on');
-const lightOffBtn = document.getElementById('light-off');
 const addressSelect = document.getElementById('websocket-address');
 const errorBanner = document.getElementById('error-banner');
 const connectBtn = document.getElementById('connect-btn');
+const consoleBox = document.getElementById('console-box');
 
 let ws = null;
 
@@ -46,14 +45,15 @@ function establishConnection() {
             const blob = new Blob([event.data], { type: 'image/jpeg' });
             img.src = URL.createObjectURL(blob);
         } else {
-            // Handle text (e.g., heartbeat)
             console.log('Received:', event.data);
+            consoleBox.innerHTML += event.data + '<br>';
+            consoleBox.scrollTop = consoleBox.scrollHeight;
         }
     };
 
     ws.onclose = (event) => {
         console.log('WebSocket disconnected, code:', event.code);
-        connectBtn.textContent = "Disconnected"
+        connectBtn.textContent = "Reconnect"
     };
 
     ws.onerror = (error) => {
@@ -69,15 +69,39 @@ connectWebSocket();
 
 connectBtn.addEventListener('click', () => connectWebSocket());
 
-lightOnBtn.addEventListener('mousedown', (e) => {
-    sendCmd('ledon');
+
+const fpsSlider = document.getElementById('fps-slider');
+const fpsValue = document.getElementById('fps-value');
+
+// FPS Regulator
+
+let intervalId = null;
+let currentFPS = 25;
+
+// Start or update the interval based on FPS
+function updateInterval(fps) {
+    if (intervalId) {
+        clearInterval(intervalId); // Clear existing interval
+    }
+    const intervalMs = Math.round(1000 / fps); // Convert FPS to milliseconds
+    intervalId = setInterval(() => sendCmd('vid'), intervalMs);
+    currentFPS = fps;
+    fpsValue.textContent = fps; // Update displayed FPS
+}
+
+// Initial FPS set
+updateInterval(currentFPS);
+
+// Slider event listener
+fpsSlider.addEventListener('input', (e) => {
+    const newFPS = parseInt(e.target.value, 10);
+    updateInterval(newFPS);
 });
 
-lightOffBtn.addEventListener('mousedown', (e) => {
-    sendCmd('ledoff');
-});
 
 export function sendCmd(arg) {
-    ws.send(arg);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(arg);
+    }
 }
 

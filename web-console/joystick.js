@@ -19,7 +19,7 @@ function getCenterPosition() {
 }
 
 let lastSentTime = 0;
-const THROTTLE_DELAY = 100; // throttle period in ms
+const THROTTLE_DELAY = 50; // throttle period in ms
 
 function moveJoystick(x, y) {
     const center = getCenterPosition();
