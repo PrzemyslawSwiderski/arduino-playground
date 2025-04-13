@@ -41,6 +41,6 @@ void setupCameraMod()
 
   // drop down frame size for higher initial frame rate
   sensor_t *s = esp_camera_sensor_get();
-  s->set_framesize(s, FRAMESIZE_QVGA);
+  s->set_framesize(s, FRAMESIZE_QQVGA);
   
 }

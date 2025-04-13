@@ -42,8 +42,8 @@ function establishConnection() {
     ws.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
             // Handle video frame
-            const blob = new Blob([event.data], { type: 'image/jpeg' });
-            img.src = URL.createObjectURL(blob);
+            // const blob = new Blob([event.data], { type: 'image/jpeg' });
+            // img.src = URL.createObjectURL(blob);
         } else {
             console.log('Received:', event.data);
             consoleBox.innerHTML += event.data + '<br>';
@@ -76,17 +76,21 @@ const fpsValue = document.getElementById('fps-value');
 // FPS Regulator
 
 let intervalId = null;
-let currentFPS = 25;
+let currentFPS = 5;
 
 // Start or update the interval based on FPS
 function updateInterval(fps) {
     if (intervalId) {
         clearInterval(intervalId); // Clear existing interval
     }
-    const intervalMs = Math.round(1000 / fps); // Convert FPS to milliseconds
-    intervalId = setInterval(() => sendCmd('vid'), intervalMs);
     currentFPS = fps;
     fpsValue.textContent = fps; // Update displayed FPS
+    fpsSlider.value = fps;
+    if (fps === 0) {
+        return;
+    }
+    const intervalMs = Math.round(1000 / fps); // Convert FPS to milliseconds
+    intervalId = setInterval(() => sendCmd('vid'), intervalMs);
 }
 
 // Initial FPS set

@@ -5,16 +5,19 @@
 #include "roverMod.h"
 #include "wifiMod.h"
 #include "webSocketMod.h"
+#include "esp_log.h"
+
+static const char *TAG = "main";
 
 // Checks if motion was detected, sets LED HIGH and starts a timer
-void IRAM_ATTR detectsMovement() {
-  Serial.println("Motion detected! Taking photo...");
+void IRAM_ATTR detectsMovement()
+{
+  ESP_EARLY_LOGI(TAG, "Motion detected! Taking photo...");
 }
 
 void setup()
 {
   Serial.begin(115200);
-  Serial.println();
 
   pinMode(LED_LIGHT_GPIO_NUM, OUTPUT);
   pinMode(RED_LIGHT_GPIO_NUM, OUTPUT);
@@ -30,12 +33,10 @@ void setup()
   // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
   attachInterrupt(digitalPinToInterrupt(PIR_SENSOR_PIN), detectsMovement, RISING);
 
-  Serial.println("Waiting for PIR sensor to stabilize (30s)...");
+  ESP_LOGI(TAG, "Waiting for PIR sensor to stabilize (30s)...");
   // delay(30000); // HC-SR501 needs ~30-60s to stabilize after power-on
 }
 
 void loop()
 {
-  loopWebSocketMod();
-  loopRoverMod();
 }

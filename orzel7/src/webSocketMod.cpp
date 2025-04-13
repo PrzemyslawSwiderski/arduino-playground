@@ -8,22 +8,42 @@
 #include <unordered_map>
 #include <functional>
 
+static const char *TAG = "webSockeMod";
+
 static AsyncWebServer server(443);
 static AsyncWebSocket ws("/ws");
 
 static unsigned long lastHealthCheckTime = 0;
 
 const unsigned long HEALTH_CHECK_INTERVAL = 5000; // 5 seconds in milliseconds
+const unsigned int QUEUE_MARGIN = 5;
+
+static boolean canSend(AsyncWebSocketClient *client)
+{
+  size_t currentQueueLen = client->queueLen();
+  if (currentQueueLen < WS_MAX_QUEUED_MESSAGES - QUEUE_MARGIN)
+  {
+    return true;
+  }
+  else
+  {
+    ESP_LOGE(TAG, "Can not send to client, ignoring the message");
+    return false;
+  }
+}
 
 static void sendFrame(AsyncWebSocketClient *client)
 {
   camera_fb_t *fb = esp_camera_fb_get();
   if (!fb)
   {
-    Serial.println("Camera capture failed");
+    ESP_LOGE(TAG, "Camera capture failed");
     return;
   }
-  client->binary(fb->buf, fb->len);
+  if (canSend(client))
+  {
+    client->binary(fb->buf, fb->len);
+  }
 
   // Return frame buffer
   esp_camera_fb_return(fb);
@@ -31,14 +51,28 @@ static void sendFrame(AsyncWebSocketClient *client)
 
 static void sendInfo(AsyncWebSocketClient *client)
 {
-  client->printf("Can write all: %d", ws.availableForWriteAll());
-  client->printf("Ping all result: %d", ws.pingAll());
-  client->printf("Current connected clients: %u", ws.count());
-
+  size_t queueLen = client->queueLen();
   size_t totalHeapSize = ESP.getHeapSize();
   size_t freeHeap = ESP.getFreeHeap();
   float freeHeapPercent = (freeHeap * 100.0) / totalHeapSize;
-  client->printf("Free Heap: %u bytes (%.2f%% of %u total)", freeHeap, freeHeapPercent, totalHeapSize);
+
+  char buffer[256]; // Adjust size if needed
+  snprintf(buffer, sizeof(buffer),
+           "Queue LEN: %u\n"
+           "Can write all: %d\n"
+           "Ping all result: %d\n"
+           "Current connected clients: %u\n"
+           "Free Heap: %u bytes (%.2f%% of %u total)\n",
+           queueLen,
+           ws.availableForWriteAll(),
+           ws.pingAll(),
+           ws.count(),
+           freeHeap, freeHeapPercent, totalHeapSize);
+  ESP_LOGI(TAG, "Sending info to client %u:\n%s", client->id(), buffer);
+  if (canSend(client))
+  {
+    client->text(buffer);
+  }
 }
 
 // Command map defined outside the function (file-scoped static)
@@ -69,7 +103,7 @@ static const std::unordered_map<DataKey, std::function<void(AsyncWebSocketClient
 static void handleDataEvent(AsyncWebSocketClient *client, void *arg, uint8_t *data, size_t len)
 {
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
-
+  ESP_LOGI(TAG, "Received cmd: %.*s", (int)len, (char *)data);
   DataKey key{data, len};
   auto it = commands.find(key);
   if (it != commands.end())
@@ -87,16 +121,16 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
   switch (type)
   {
   case WS_EVT_CONNECT:
-    Serial.printf("Client connected: ID %lu, IP %s\n", client->id(), client->remoteIP().toString().c_str());
+    ESP_LOGI(TAG, "Client connected: ID %lu, IP %s\n", client->id(), client->remoteIP().toString().c_str());
     client->setCloseClientOnQueueFull(false);
     client->text("Hello from ESP32-CAM!");
     break;
   case WS_EVT_DISCONNECT:
-    Serial.printf("Client disconnected: ID %lu at %lu ms\n", (unsigned long)client->id(), millis());
+    ESP_LOGI(TAG, "Client disconnected: ID %u at %lu ms\n", client->id(), millis());
     client->close();
     break;
   case WS_EVT_ERROR:
-    Serial.printf("Error with client %lu: %s\n", (unsigned long)client->id(), (char *)data);
+    ESP_LOGI(TAG, "Error with client %u: %s\n", client->id(), data);
     break;
   case WS_EVT_DATA:
     handleDataEvent(client, arg, data, len);
@@ -106,27 +140,11 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
   }
 }
 
-void healthCheck()
-{
-  ws.cleanupClients();
-  Serial.printf("Ping all result: %d\n", ws.pingAll());
-  Serial.printf("Current connected clients: %u\n", ws.count());
-  size_t totalHeapSize = ESP.getHeapSize();
-  size_t freeHeap = ESP.getFreeHeap();
-  float freeHeapPercent = (freeHeap * 100.0) / totalHeapSize; // Calculate percentage
-  Serial.printf("Free Heap: %u bytes (%.2f%% of %u total)\n", freeHeap, freeHeapPercent, totalHeapSize);
-}
-
 void setupWebSocketMod()
 {
   ws.onEvent(onWsEvent);
   server.addHandler(&ws);
 
   server.begin();
-  Serial.println("WebSocket server started on ws://<your-ip>:443/ws");
-}
-
-void loopWebSocketMod()
-{
-  runEvery(lastHealthCheckTime, HEALTH_CHECK_INTERVAL, healthCheck);
+  ESP_LOGI(TAG, "WebSocket server started on ws://<your-ip>:443/ws");
 }
