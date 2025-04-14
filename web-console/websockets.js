@@ -1,5 +1,6 @@
 
 const img = document.getElementById('stream');
+const saveBtn = document.getElementById('save-frame-btn');
 const addressSelect = document.getElementById('websocket-address');
 const errorBanner = document.getElementById('error-banner');
 const connectBtn = document.getElementById('connect-btn');
@@ -41,9 +42,10 @@ function establishConnection() {
 
     ws.onmessage = (event) => {
         if (event.data instanceof ArrayBuffer) {
-            // Handle video frame
-            // const blob = new Blob([event.data], { type: 'image/jpeg' });
-            // img.src = URL.createObjectURL(blob);
+            const blob = new Blob([event.data], { type: 'image/jpeg' });
+            let frameUrl = URL.createObjectURL(blob);
+            img.src = frameUrl;
+            saveBtn.href = frameUrl;
         } else {
             console.log('Received:', event.data);
             consoleBox.innerHTML += event.data + '<br>';
@@ -108,4 +110,3 @@ export function sendCmd(arg) {
         ws.send(arg);
     }
 }
-

@@ -39,8 +39,13 @@
         </div>
         <div class="control-panel">
             <div class="row justify-content-center">
-                <input type="range" class="form-range" id="fps-slider" min="0" max="60" value="30">
-                <label for="fps-slider" class="form-label">FPS : <span id="fps-value"></span></label>
+                <div class="col-9">
+                    <input id="fps-slider" type="range" class="form-range" min="0" max="60" value="30">
+                    <label for="fps-slider" class="form-label">FPS : <span id="fps-value"></span></label>
+                </div>
+                <div class="col-3">
+                    <a id="save-frame-btn" type="button" download="savedFrame" class="btn btn-info w-100">Save</a>
+                </div>
             </div>
             <div class="row justify-content-center">
                 <div class="col-12">
@@ -76,6 +81,16 @@
                 </div>
                 <div class="col-6">
                     <button id="reset-button" class="btn btn-danger">Reset Device</button>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-5">
+                <div class="col-6">
+                    <input id="quality-slider" type="range" class="form-range" min="0" max="60" value="30">
+                    <label for="quality-slider" class="form-label">Quality : <span id="quality-value"></span></label>
+                </div>
+                <div class="col-6">
+                    <input id="brightness-slider" type="range" class="form-range" min="0" max="60" value="30">
+                    <label for="brightness-slider" class="form-label">Brightness : <span id="brightness-value"></span></label>
                 </div>
             </div>
         </div>

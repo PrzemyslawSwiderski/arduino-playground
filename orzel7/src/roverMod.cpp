@@ -76,7 +76,7 @@ static void autoStopTask(void *pvParameters)
     unsigned long currentTime = millis();
     if (isTimeAfter(currentTime, lastMovementTime, AUTO_STOP_DELAY_TIME))
     {
-      ESP_LOGI(TAG, "Auto stopping the rover");
+      ESP_LOGD(TAG, "Auto stopping the rover");
       roverStop();
     }
     vTaskDelay(checkInterval);

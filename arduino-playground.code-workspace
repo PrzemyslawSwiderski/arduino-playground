@@ -100,7 +100,10 @@
 			"format": "cpp",
 			"text_encoding": "cpp",
 			"cinttypes": "cpp",
-			"sensor.h": "c"
+			"sensor.h": "c",
+			"fstream": "cpp",
+			"future": "cpp",
+			"iostream": "cpp"
 		}
 	}
 }
