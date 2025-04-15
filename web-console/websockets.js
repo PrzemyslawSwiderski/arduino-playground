@@ -13,20 +13,10 @@ function resolveAddress() {
     return `ws://${address}:443/ws`;
 }
 
-function connectWebSocket() {
-    // Check if socket exists and is not already closed
-    if (ws && ws.readyState !== WebSocket.CLOSED) {
-        ws.close(); // Close the existing connection
-        // Wait briefly to ensure the close completes
-        setTimeout(() => {
-            establishConnection();
-        }, 100); // 100ms delay
-    } else {
-        establishConnection(); // No existing connection, proceed directly
-    }
-}
-
 function establishConnection() {
+    if (ws) {
+        ws.close(); // Close the existing connection
+    }
     let wsUrl = resolveAddress();
 
     ws = new WebSocket(wsUrl);
@@ -56,32 +46,28 @@ function establishConnection() {
     ws.onclose = (event) => {
         console.log('WebSocket disconnected, code: ', event.code);
         connectBtn.textContent = "Reconnect";
-        setTimeout(() => {
-            establishConnection();
-        }, 100);
+        ws.close();
     };
 
     ws.onerror = (error) => {
         console.warn('WebSocket error, retrying...', error);
         errorBanner.classList.add('show');
         connectBtn.textContent = "Try Reconnect";
-        setTimeout(() => {
-            establishConnection();
-        }, 100);
+        ws.close();
     };
 
 }
 
-connectWebSocket();
+establishConnection();
 
 setInterval(() => {
-    if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+    if (ws.readyState === WebSocket.CLOSED) {
         console.log('Retrying connection...');
         establishConnection();
     }
-}, 50);
+}, 20);
 
-connectBtn.addEventListener('click', () => connectWebSocket());
+connectBtn.addEventListener('click', () => establishConnection());
 
 const fpsSlider = document.getElementById('fps-slider');
 const fpsValue = document.getElementById('fps-value');

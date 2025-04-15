@@ -37,11 +37,18 @@ static void sendInfo(uint8_t clientId)
   size_t freeHeap = ESP.getFreeHeap();
   float freeHeapPercent = (freeHeap * 100.0) / totalHeapSize;
 
+  size_t totalPsramSize = ESP.getPsramSize();
+  size_t freePsram = ESP.getFreePsram();
+  float freePsramPercent = (freePsram * 100.0) / totalPsramSize;
+
   char buffer[256];
   snprintf(buffer, sizeof(buffer),
            "Free Heap: %u bytes (%.2f%% of %u total)\n"
+           "Free PSRAM: %u bytes (%.2f%% of %u total)\n"
            "Clients: %u\n",
-           freeHeap, freeHeapPercent, totalHeapSize, ws.connectedClients());
+           freeHeap, freeHeapPercent, totalHeapSize, 
+           freePsram, freePsramPercent, totalPsramSize, 
+           ws.connectedClients());
   ESP_LOGI(TAG, "Sending info to client %u:\n%s", clientId, buffer);
   ws.sendTXT(clientId, buffer);
 }
