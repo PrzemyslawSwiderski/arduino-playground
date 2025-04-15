@@ -103,7 +103,8 @@
 			"sensor.h": "c",
 			"fstream": "cpp",
 			"future": "cpp",
-			"iostream": "cpp"
+			"iostream": "cpp",
+			"esp_camera.h": "c"
 		}
 	}
 }

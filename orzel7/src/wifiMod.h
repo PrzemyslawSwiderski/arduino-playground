@@ -1,4 +1,4 @@
 #pragma once
 
-void changeWifiMode();
+void switchWifiMode();
 void setupWifiMod();

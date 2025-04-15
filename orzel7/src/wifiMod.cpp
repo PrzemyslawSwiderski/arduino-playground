@@ -1,77 +1,107 @@
 #include <WiFi.h>
+#include <Preferences.h>
 #include "secrets.h"
 #include "wifiMod.h"
+#include "sleepMod.h"
 #include "pins.h"
+#include "esp_log.h"
 
-static String WiFiAddr = "";
+static const char *TAG = "wifiMod";
 
-static bool isAPMode = false;
+Preferences preferences;
 
-namespace
+static String wiFiAddr = "";
+
+static bool isAPMode = true;
+
+void saveCurrentMode()
 {
-
-  void startAsClient()
-  {
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    while (WiFi.status() != WL_CONNECTED)
-    {
-      delay(500);
-      Serial.print(".");
-    }
-    Serial.println("");
-    Serial.println("WiFi connected");
-    WiFiAddr = WiFi.localIP().toString();
-    isAPMode = false;
-  }
-
-  void startAsAP()
-  {
-    WiFi.softAP(AP_WIFI_SSID, AP_WIFI_PASS);
-    IPAddress myIP = WiFi.softAPIP();
-    Serial.print("AP IP address: ");
-    Serial.println(myIP);
-    WiFiAddr = myIP.toString();
-    isAPMode = true;
-  }
-
-  void stopWifi()
-  {
-    WiFi.disconnect(true); // Disconnect and turn off Wi-Fi
-    WiFi.mode(WIFI_OFF);   // Ensure Wi-Fi is fully off
-    delay(100);            // Give it time to settle
-  }
-
-  void printIpInfo()
-  {
-    Serial.print("Rover Ready! Use 'http://");
-    Serial.print(WiFiAddr);
-    Serial.println("' to connect");
-  }
-
+  preferences.begin("wifi_mode", false);
+  preferences.putBool("isAPMode", isAPMode);
+  preferences.end();
 }
 
-void changeWifiMode()
+void startAsClient()
+{
+  sleepModOn();
+  ESP_LOGI(TAG, "Running in Client mode...");
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    ESP_LOGI(TAG, ".");
+  }
+  ESP_LOGI(TAG, "WiFi connected");
+  wiFiAddr = WiFi.localIP().toString();
+
+  saveCurrentMode();
+}
+
+void startAsAP()
+{
+  sleepModOff();
+  ESP_LOGI(TAG, "Running in AP mode...");
+  WiFi.softAP(AP_WIFI_SSID, AP_WIFI_PASS);
+  IPAddress myIP = WiFi.softAPIP();
+  ESP_LOGI(TAG, "AP IP address: %s", myIP);
+  wiFiAddr = myIP.toString();
+
+  saveCurrentMode();
+}
+
+void stopWifi()
+{
+  WiFi.disconnect(true); // Disconnect and turn off Wi-Fi
+  WiFi.mode(WIFI_OFF);   // Ensure Wi-Fi is fully off
+  delay(100);            // Give it time to settle
+}
+
+void printIpInfo()
+{
+  ESP_LOGI(TAG, "Rover Ready! Use 'http://%s' to connect", wiFiAddr);
+}
+
+void runWifiMode()
 {
   // Toggle mode
   if (isAPMode)
   {
-    Serial.println("Switching to Client mode...");
+    ESP_LOGI(TAG, "Running in Client mode...");
     stopWifi();      // Disconnect current mode
     startAsClient(); // Start Client mode
   }
   else
   {
-    Serial.println("Switching to AP mode...");
+    ESP_LOGI(TAG, "Running in AP mode...");
     stopWifi();  // Disconnect current mode
     startAsAP(); // Start AP mode
   }
   printIpInfo();
 }
 
+void switchWifiMode()
+{
+  ESP_LOGI(TAG, "Toggling WIFI mode");
+  if (isAPMode)
+  {
+    isAPMode = false;
+  }
+  else
+  {
+    isAPMode = true;
+  }
+  saveCurrentMode();
+  runWifiMode();
+}
+
 void setupWifiMod()
 {
+  // Load isAPMode from Preferences
+  preferences.begin("wifi_mode", true);             // Read-only mode
+  isAPMode = preferences.getBool("isAPMode", true); // Default to true (AP mode)
+  preferences.end();
+
   pinMode(RED_LIGHT_GPIO_NUM, OUTPUT);
-  startAsClient();
-  printIpInfo();
+  runWifiMode();
   digitalWrite(RED_LIGHT_GPIO_NUM, LOW);
 }

@@ -37,7 +37,7 @@ function establishConnection() {
         console.log(`Connected to WebSocket at ${wsUrl}`);
         ws.send('Hello! FROM the client');
         errorBanner.classList.remove('show');
-        connectBtn.textContent = "Connected"
+        connectBtn.textContent = "Connected";
     };
 
     ws.onmessage = (event) => {
@@ -54,23 +54,34 @@ function establishConnection() {
     };
 
     ws.onclose = (event) => {
-        console.log('WebSocket disconnected, code:', event.code);
-        connectBtn.textContent = "Reconnect"
+        console.log('WebSocket disconnected, code: ', event.code);
+        connectBtn.textContent = "Reconnect";
+        setTimeout(() => {
+            establishConnection();
+        }, 100);
     };
 
     ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.warn('WebSocket error, retrying...', error);
         errorBanner.classList.add('show');
-        connectBtn.textContent = "Try Reconnect"
+        connectBtn.textContent = "Try Reconnect";
+        setTimeout(() => {
+            establishConnection();
+        }, 100);
     };
 
 }
 
-// Initial connection
 connectWebSocket();
 
-connectBtn.addEventListener('click', () => connectWebSocket());
+setInterval(() => {
+    if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+        console.log('Retrying connection...');
+        establishConnection();
+    }
+}, 50);
 
+connectBtn.addEventListener('click', () => connectWebSocket());
 
 const fpsSlider = document.getElementById('fps-slider');
 const fpsValue = document.getElementById('fps-value');

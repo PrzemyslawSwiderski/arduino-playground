@@ -35,13 +35,19 @@ document.getElementById('wifi-switch-button')
         sendCmd('wifi-change');
     });
 
+document.getElementById('reset-cam-button')
+    .addEventListener('mousedown', (e) => {
+        sendCmd('reset-cam');
+    });
+
+
 
 // JPEG QUALITY
 
 const qualitySlider = document.getElementById('quality-slider');
 const qualityValue = document.getElementById('quality-value');
 
-function setQuality(quality){
+function setQuality(quality) {
     qualityValue.textContent = quality;
     qualitySlider.value = quality;
     sendCmd(`quality:${quality}`);
@@ -60,7 +66,7 @@ setQuality(defaultQuality);
 const brightnessSlider = document.getElementById('brightness-slider');
 const brightnessValue = document.getElementById('brightness-value');
 
-function setBrightness(brightness){
+function setBrightness(brightness) {
     brightnessValue.textContent = brightness;
     brightnessSlider.value = brightness;
     sendCmd(`brightness:${brightness}`);
@@ -80,7 +86,7 @@ setBrightness(defaultBrightness);
 const sizeSlider = document.getElementById('size-slider');
 const sizeValue = document.getElementById('size-value');
 
-function setSize(size){
+function setSize(size) {
     sizeValue.textContent = size;
     sizeSlider.value = size;
     sendCmd(`size:${size}`);
@@ -100,7 +106,7 @@ setSize(defaultSize);
 const contrastSlider = document.getElementById('contrast-slider');
 const contrastValue = document.getElementById('contrast-value');
 
-function setContrast(contrast){
+function setContrast(contrast) {
     contrastValue.textContent = contrast;
     contrastSlider.value = contrast;
     sendCmd(`contrast:${contrast}`);

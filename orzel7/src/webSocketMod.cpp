@@ -3,6 +3,7 @@
 #include "roverMod.h"
 #include "utilsMod.h"
 #include "wifiMod.h"
+#include "sleepMod.h"
 #include "esp_camera.h"
 #include <WebSocketsServer.h>
 #include <unordered_map>
@@ -14,13 +15,7 @@ static const char *TAG = "webSocketMod";
 
 static WebSocketsServer ws(443);
 
-static QueueHandle_t vidRequestQueue; // Queue for video requests
-
-// Struct for video requests
-typedef struct
-{
-  uint8_t clientId;
-} VidRequest;
+static unsigned long lastHealthCheck = 0;
 
 static void sendFrame(uint8_t clientId)
 {
@@ -28,9 +23,8 @@ static void sendFrame(uint8_t clientId)
   if (!fb)
   {
     ESP_LOGE(TAG, "Camera capture failed");
-    ws.sendTXT(clientId, "Error: Camera capture failed");
-    esp_camera_deinit();
-    setupCameraMod();
+    ws.sendTXT(clientId, "Error: Camera capture failed, resetting camera...");
+    resetCameraMod();
     return;
   }
   ws.sendBIN(clientId, fb->buf, fb->len);
@@ -72,8 +66,10 @@ static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHa
     {DataKey{(const uint8_t *)"info", 4}, sendInfo},
     {DataKey{(const uint8_t *)"reset", 5}, [](uint8_t clientId)
      { ESP.restart(); }},
+    {DataKey{(const uint8_t *)"reset-cam", 9}, [](uint8_t clientId)
+     { resetCameraMod(); }},
     {DataKey{(const uint8_t *)"wifi-change", 11}, [](uint8_t clientId)
-     { changeWifiMode(); }},
+     { switchWifiMode(); }},
 };
 
 // Command map for key-value commands
@@ -165,6 +161,7 @@ void onWsEvent(uint8_t clientId, WStype_t type, uint8_t *data, size_t len)
     ESP_LOGI(TAG, "Client disconnected: ID %u", clientId);
     break;
   case WStype_CONNECTED:
+    sleepModOff();
     ESP_LOGI(TAG, "Client connected: ID %u", clientId);
     ws.sendTXT(clientId, "Hello from ESP32-CAM!");
     break;
@@ -190,6 +187,30 @@ void onWsEvent(uint8_t clientId, WStype_t type, uint8_t *data, size_t len)
   }
 }
 
+static void healthCheck()
+{
+  ESP_LOGI(TAG, "HEALTH CHECK");
+  boolean res = ws.broadcastPing();
+  if (!res)
+  {
+    ESP_LOGI(TAG, "HEALTH CHECK FAILED");
+    ws.disconnect();
+  }
+  else
+  {
+    ESP_LOGI(TAG, "CLIENTS: %u", ws.connectedClients());
+    ESP_LOGI(TAG, "HEALTH CHECK SUCCESS");
+    if (ws.connectedClients())
+    {
+      sleepModOff();
+    }
+    // else
+    // {
+    //   sleepModOn();
+    // }
+  }
+}
+
 // WebSocket task function
 static void webSocketTask(void *pvParameters)
 {
@@ -197,6 +218,7 @@ static void webSocketTask(void *pvParameters)
   {
     ws.loop();                    // Handle WebSocket events
     vTaskDelay(pdMS_TO_TICKS(5)); // Yield to other tasks
+    runEvery(lastHealthCheck, 5000, healthCheck);
   }
 }
 

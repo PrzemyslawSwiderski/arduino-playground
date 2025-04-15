@@ -30,21 +30,27 @@ void setupCameraMod()
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  config.frame_size = FRAMESIZE_UXGA;
-  config.jpeg_quality = 10;
-  config.fb_count = 4;
+  config.frame_size = FRAMESIZE_HQVGA;
+  config.jpeg_quality = 30;
+  config.fb_count = 2;
+  config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
 
   // camera init
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK)
   {
-    Serial.printf("Camera init failed with error 0x%x", err);
+    ESP_LOGE(TAG, "Camera init failed with error 0x%x", err);
     return;
   }
+  setBrightness(-1);
+  setContrast(1);
+}
 
-  // drop down frame size for higher initial frame rate
-  sensor_t *s = esp_camera_sensor_get();
-  s->set_framesize(s, FRAMESIZE_QQVGA);
+void resetCameraMod()
+{
+  esp_camera_return_all();
+  esp_camera_deinit();
+  setupCameraMod();
 }
 
 void setQuality(int value)
