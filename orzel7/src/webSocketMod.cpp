@@ -1,4 +1,5 @@
 #include "webSocketMod.h"
+#include "cameraMod.h"
 #include "roverMod.h"
 #include "utilsMod.h"
 #include "wifiMod.h"
@@ -28,6 +29,8 @@ static void sendFrame(uint8_t clientId)
   {
     ESP_LOGE(TAG, "Camera capture failed");
     ws.sendTXT(clientId, "Error: Camera capture failed");
+    esp_camera_deinit();
+    setupCameraMod();
     return;
   }
   ws.sendBIN(clientId, fb->buf, fb->len);
@@ -50,7 +53,7 @@ static void sendInfo(uint8_t clientId)
 }
 
 // Command map
-static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHash> commands = {
+static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHash> simpleCommands = {
     {DataKey{(const uint8_t *)"go", 2}, [](uint8_t clientId)
      { roverFwd(); }},
     {DataKey{(const uint8_t *)"stop", 4}, [](uint8_t clientId)
@@ -73,6 +76,86 @@ static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHa
      { changeWifiMode(); }},
 };
 
+// Command map for key-value commands
+static const std::unordered_map<DataKey, std::function<void(int)>, DataKeyHash> valueCommands = {
+    {DataKey{(const uint8_t *)"quality", 7}, setQuality},
+    {DataKey{(const uint8_t *)"brightness", 10}, setBrightness},
+    {DataKey{(const uint8_t *)"size", 4}, setSize},
+    {DataKey{(const uint8_t *)"contrast", 8}, setContrast},
+};
+
+// Helper: Send error message to client
+static void sendError(uint8_t clientId, const char *format, ...)
+{
+  char buffer[64];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(buffer, sizeof(buffer), format, args);
+  va_end(args);
+  ws.sendTXT(clientId, buffer);
+}
+
+// Helper: Parse and validate integer value from string
+static bool parseValue(const char *valueStr, size_t valueLen, int &result)
+{
+  char valueBuf[16];
+  if (valueLen >= sizeof(valueBuf))
+  {
+    return false; // Value too long
+  }
+  strncpy(valueBuf, valueStr, valueLen);
+  valueBuf[valueLen] = '\0';
+  char *endptr;
+  long value = strtol(valueBuf, &endptr, 10);
+  if (endptr == valueBuf || *endptr != '\0')
+  {
+    return false; // Invalid number
+  }
+  result = (int)value;
+  return true;
+}
+
+// Helper: Handle key-value command
+static void handleValueCommand(uint8_t clientId, uint8_t *data, size_t len, char *colon)
+{
+  size_t keyLen = colon - (char *)data;
+  DataKey key{data, keyLen};
+  auto entry = valueCommands.find(key);
+
+  if (entry == valueCommands.end())
+  {
+    sendError(clientId, "Unrecognized command: %.*s", (int)keyLen, (char *)data);
+    return;
+  }
+
+  // Parse value after colon
+  char *valueStr = colon + 1;
+  size_t valueLen = len - keyLen - 1;
+  int value;
+  if (!parseValue(valueStr, valueLen, value))
+  {
+    sendError(clientId, valueLen >= 16 ? "Error: Value too long" : "Error: Invalid number");
+    return;
+  }
+
+  entry->second(value);
+}
+
+// Helper: Handle simple command
+static void handleSimpleCommand(uint8_t clientId, uint8_t *data, size_t len)
+{
+  DataKey key{data, len};
+  auto entry = simpleCommands.find(key);
+  if (entry != simpleCommands.end())
+  {
+    entry->second(clientId);
+  }
+  else
+  {
+    sendError(clientId, "Unrecognized message: %.*s", (int)len, (char *)data);
+  }
+}
+
 // WebSocket event handler
 void onWsEvent(uint8_t clientId, WStype_t type, uint8_t *data, size_t len)
 {
@@ -88,17 +171,14 @@ void onWsEvent(uint8_t clientId, WStype_t type, uint8_t *data, size_t len)
   case WStype_TEXT:
     ESP_LOGD(TAG, "Received cmd: %.*s", (int)len, (char *)data);
     {
-      DataKey key{data, len};
-      auto it = commands.find(key);
-      if (it != commands.end())
+      char *colon = (char *)memchr(data, ':', len);
+      if (colon)
       {
-        it->second(clientId);
+        handleValueCommand(clientId, data, len, colon);
       }
       else
       {
-        char buffer[64];
-        snprintf(buffer, sizeof(buffer), "Unrecognized message: %.*s", (int)len, (char *)data);
-        ws.sendTXT(clientId, buffer);
+        handleSimpleCommand(clientId, data, len);
       }
     }
     break;

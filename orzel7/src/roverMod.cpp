@@ -85,6 +85,7 @@ static void autoStopTask(void *pvParameters)
 
 void setupRoverMod()
 {
+  pinMode(LED_LIGHT_GPIO_NUM, OUTPUT);
   digitalWrite(LED_LIGHT_GPIO_NUM, LOW);
 
   ledcAttach(LEFT_BACK_MOTOR, freq, lresolution); /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */

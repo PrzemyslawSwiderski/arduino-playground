@@ -85,12 +85,22 @@
             </div>
             <div class="row justify-content-center mt-5">
                 <div class="col-6">
-                    <input id="quality-slider" type="range" class="form-range" min="0" max="60" value="30">
+                    <input id="quality-slider" type="range" class="form-range" min="0" max="63">
                     <label for="quality-slider" class="form-label">Quality : <span id="quality-value"></span></label>
                 </div>
                 <div class="col-6">
-                    <input id="brightness-slider" type="range" class="form-range" min="0" max="60" value="30">
+                    <input id="brightness-slider" type="range" class="form-range" min="-2" max="2">
                     <label for="brightness-slider" class="form-label">Brightness : <span id="brightness-value"></span></label>
+                </div>
+            </div>
+            <div class="row justify-content-center mt-5">
+                <div class="col-6">
+                    <input id="size-slider" type="range" class="form-range" min="0" max="13">
+                    <label for="size-slider" class="form-label">Size : <span id="size-value"></span></label>
+                </div>
+                <div class="col-6">
+                    <input id="contrast-slider" type="range" class="form-range" min="-2" max="2">
+                    <label for="contrast-slider" class="form-label">Contrast : <span id="contrast-value"></span></label>
                 </div>
             </div>
         </div>
@@ -105,7 +115,7 @@
         </div>
     </div>
     <script type="module" src="websockets.js"></script>
-    <script type="module" src="button-actions.js"></script>
+    <script type="module" src="element-actions.js"></script>
     <script type="module" src="joystick.js"></script>
     <!-- Bootstrap 5 JS Bundle CDN (includes Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

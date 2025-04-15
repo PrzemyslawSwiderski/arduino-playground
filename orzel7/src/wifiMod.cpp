@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include "secrets.h"
 #include "wifiMod.h"
+#include "pins.h"
 
 static String WiFiAddr = "";
 
@@ -69,6 +70,8 @@ void changeWifiMode()
 
 void setupWifiMod()
 {
+  pinMode(RED_LIGHT_GPIO_NUM, OUTPUT);
   startAsClient();
   printIpInfo();
+  digitalWrite(RED_LIGHT_GPIO_NUM, LOW);
 }
