@@ -1,56 +1,46 @@
 #include <WiFi.h>
 #include "secrets.h"
 #include "wifiMod.h"
-#include "sleepMod.h"
 #include "prefsMod.h"
+#include "utilsMod.h"
 #include "pins.h"
 #include "esp_log.h"
 
 static const char *TAG = "wifiMod";
+static const char *IS_AP_MODE_KEY = "isAPMode";
+static const char *WIFI_SSID_KEY = "wifiSsid";
+static const char *WIFI_PASS_KEY = "wifiPass";
+static const unsigned long CONNECT_TIMEOUT_MS = 2000;
 
 static String wiFiAddr = "";
 
-static String wiFiSSID = "";
-static String wiFiPass = "";
+static String wifiSsid = "";
+static String wifiPass = "";
 
 static bool isAPMode = true;
 
+bool ifAPModeOn()
+{
+  return isAPMode;
+}
+
 void saveCurrentMode()
 {
-  saveBoolean("isAPMode", isAPMode);
+  saveBoolean(IS_AP_MODE_KEY, isAPMode);
 }
 
-void saveWiFiCreds(String wiFiSSID, String wiFiPass)
+void setWifiSsid(String wifiSsid)
 {
-  saveString("wiFiSSID", wiFiSSID);
-  saveString("wiFiPass", wiFiPass);
+  saveString(WIFI_SSID_KEY, wifiSsid);
 }
 
-void startAsClient()
+void setWifiPassword(String wifiPass)
 {
-  sleepModOn();
-  ESP_LOGI(TAG, "Running in Client mode...");
-  ESP_LOGI(TAG, "Connecting to: %s", wiFiSSID);
-  WiFi.begin(wiFiSSID, wiFiPass);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    ESP_LOGI(TAG, ".");
-    if (WiFi.status() == WL_CONNECT_FAILED || WiFi.status() == WL_NO_SSID_AVAIL)
-    {
-      ESP_LOGW(TAG, "Can not connect to WiFi with provided credentials");
-      return;
-    }
-  }
-  ESP_LOGI(TAG, "WiFi connected");
-  wiFiAddr = WiFi.localIP().toString();
-
-  saveCurrentMode();
+  saveString(WIFI_PASS_KEY, wifiPass);
 }
 
 void startAsAP()
 {
-  sleepModOff();
   ESP_LOGI(TAG, "Running in AP mode...");
   WiFi.softAP(AP_WIFI_SSID, AP_WIFI_PASS);
   IPAddress myIP = WiFi.softAPIP();
@@ -62,9 +52,42 @@ void startAsAP()
 
 void stopWifi()
 {
+  ESP_LOGI(TAG, "Stopping the WiFi");
   WiFi.disconnect(true); // Disconnect and turn off Wi-Fi
   WiFi.mode(WIFI_OFF);   // Ensure Wi-Fi is fully off
   delay(100);            // Give it time to settle
+}
+
+bool isConnectionFailed(unsigned long startTime)
+{
+  unsigned long currentTime = millis();
+  return WiFi.status() == WL_CONNECT_FAILED ||
+         WiFi.status() == WL_NO_SSID_AVAIL ||
+         isTimeAfter(currentTime, startTime, CONNECT_TIMEOUT_MS);
+}
+
+void startAsClient()
+{
+  ESP_LOGI(TAG, "Running in Client mode...");
+  ESP_LOGI(TAG, "Connecting to: %s", wifiSsid.c_str());
+  WiFi.begin(wifiSsid, wifiPass);
+  unsigned long startTime = millis();
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    ESP_LOGI(TAG, ".");
+    if (isConnectionFailed(startTime))
+    {
+      ESP_LOGW(TAG, "Can not connect to WiFi with provided credentials");
+      stopWifi();
+      startAsAP();
+      return;
+    }
+  }
+  ESP_LOGI(TAG, "WiFi connected");
+  wiFiAddr = WiFi.localIP().toString();
+
+  saveCurrentMode();
 }
 
 void printIpInfo()
@@ -108,9 +131,9 @@ void switchWifiMode()
 void setupWifiMod()
 {
   // Load isAPMode from Preferences
-  isAPMode = readBool("isAPMode");
-  wiFiSSID = readString("wiFiSSID");
-  wiFiPass = readString("wiFiPass");
+  isAPMode = readBool(IS_AP_MODE_KEY);
+  wifiSsid = readString(WIFI_SSID_KEY);
+  wifiPass = readString(WIFI_PASS_KEY);
 
   pinMode(RED_LIGHT_GPIO_NUM, OUTPUT);
   runWifiMode();

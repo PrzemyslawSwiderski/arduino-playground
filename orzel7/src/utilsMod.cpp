@@ -13,9 +13,9 @@ bool runEvery(unsigned long &lastTime, const unsigned long interval, void (*acti
   return false;
 }
 
-bool isTimeAfter(unsigned long currentTime, unsigned long lastTime, const unsigned long interval)
+bool isTimeAfter(unsigned long currentTime, unsigned long lastTime, const unsigned long offsetTime)
 {
-  if ((currentTime >= lastTime && currentTime - lastTime >= interval) || (currentTime < lastTime && (0xFFFFFFFF - lastTime + currentTime + 1) >= interval))
+  if ((currentTime >= lastTime && currentTime - lastTime >= offsetTime) || (currentTime < lastTime && (0xFFFFFFFF - lastTime + currentTime + 1) >= offsetTime))
   {
     return true;
   }

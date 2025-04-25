@@ -46,8 +46,8 @@ static void sendInfo(uint8_t clientId)
            "Free Heap: %u bytes (%.2f%% of %u total)\n"
            "Free PSRAM: %u bytes (%.2f%% of %u total)\n"
            "Clients: %u\n",
-           freeHeap, freeHeapPercent, totalHeapSize, 
-           freePsram, freePsramPercent, totalPsramSize, 
+           freeHeap, freeHeapPercent, totalHeapSize,
+           freePsram, freePsramPercent, totalPsramSize,
            ws.connectedClients());
   ESP_LOGI(TAG, "Sending info to client %u:\n%s", clientId, buffer);
   ws.sendTXT(clientId, buffer);
@@ -79,12 +79,18 @@ static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHa
      { switchWifiMode(); }},
 };
 
-// Command map for key-value commands
-static const std::unordered_map<DataKey, std::function<void(int)>, DataKeyHash> valueCommands = {
+// Command map for integer value commands
+static const std::unordered_map<DataKey, std::function<void(int)>, DataKeyHash> intValueCommands = {
     {DataKey{(const uint8_t *)"quality", 7}, setQuality},
     {DataKey{(const uint8_t *)"brightness", 10}, setBrightness},
     {DataKey{(const uint8_t *)"size", 4}, setSize},
     {DataKey{(const uint8_t *)"contrast", 8}, setContrast},
+};
+
+// Command map for string value commands
+static const std::unordered_map<DataKey, std::function<void(const String &)>, DataKeyHash> stringValueCommands = {
+    {DataKey{(const uint8_t *)"wifi-ssid", 9}, setWifiSsid},
+    {DataKey{(const uint8_t *)"wifi-pass", 9}, setWifiPassword},
 };
 
 // Helper: Send error message to client
@@ -123,25 +129,41 @@ static void handleValueCommand(uint8_t clientId, uint8_t *data, size_t len, char
 {
   size_t keyLen = colon - (char *)data;
   DataKey key{data, keyLen};
-  auto entry = valueCommands.find(key);
 
-  if (entry == valueCommands.end())
+  // Check integer command map
+  auto intEntry = intValueCommands.find(key);
+  if (intEntry != intValueCommands.end())
   {
-    sendError(clientId, "Unrecognized command: %.*s", (int)keyLen, (char *)data);
+    // Parse value after colon
+    char *valueStr = colon + 1;
+    size_t valueLen = len - keyLen - 1;
+    int value;
+    if (!parseValue(valueStr, valueLen, value))
+    {
+      sendError(clientId, valueLen >= 16 ? "Error: Value too long" : "Error: Invalid number");
+      return;
+    }
+    intEntry->second(value);
+    ESP_LOGI(TAG, "Processed int command: %.*s=%d", (int)keyLen, (char *)data, value);
     return;
   }
 
-  // Parse value after colon
-  char *valueStr = colon + 1;
-  size_t valueLen = len - keyLen - 1;
-  int value;
-  if (!parseValue(valueStr, valueLen, value))
+  // Check String command map
+  auto strEntry = stringValueCommands.find(key);
+  if (strEntry != stringValueCommands.end())
   {
-    sendError(clientId, valueLen >= 16 ? "Error: Value too long" : "Error: Invalid number");
+    // Extract string value after colon
+    char *valueStr = colon + 1;
+    size_t valueLen = len - keyLen - 1;
+    // Create String from value
+    String value = String(valueStr, valueLen);
+    strEntry->second(value);
+    ESP_LOGI(TAG, "Processed String command: %.*s=%s", (int)keyLen, (char *)data, value.c_str());
     return;
   }
 
-  entry->second(value);
+  // If no command found
+  sendError(clientId, "Unrecognized command: %.*s", (int)keyLen, (char *)data);
 }
 
 // Helper: Handle simple command
@@ -166,6 +188,7 @@ void onWsEvent(uint8_t clientId, WStype_t type, uint8_t *data, size_t len)
   {
   case WStype_DISCONNECTED:
     ESP_LOGI(TAG, "Client disconnected: ID %u", clientId);
+    sleepModOn();
     break;
   case WStype_CONNECTED:
     sleepModOff();
@@ -211,10 +234,10 @@ static void healthCheck()
     {
       sleepModOff();
     }
-    // else
-    // {
-    //   sleepModOn();
-    // }
+    else
+    {
+      sleepModOn();
+    }
   }
 }
 

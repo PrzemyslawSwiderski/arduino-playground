@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "esp_camera.h"
 #include "utilsMod.h"
+#include "wifiMod.h"
 
 #define DEEP_SLEEP_DURATION_MILLIS 30 * 1000
 
@@ -19,7 +20,7 @@ static int shouldSleep = 1;
 // Function to enter deep sleep
 static void tryToSleep()
 {
-    if (!shouldSleep)
+    if (!shouldSleep || ifAPModeOn())
     {
         ESP_LOGI(TAG, "Sleep mode disabled, ignoring this cycle");
         return;

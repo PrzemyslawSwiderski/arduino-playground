@@ -137,10 +137,18 @@ document.getElementById('connection-type').dispatchEvent(new Event('change'));
 
 // Join WiFi
 
-document.getElementById('change-wifi-btn').addEventListener('click', (e) => {
-    const wifiSSID = document.getElementById('wifi-ssid').value;
-    const wifiPass = document.getElementById('wifi-password').value;
-    sendCmd(`wifi:${wifiSSID}:${wifiPass}`);
+document.getElementById('change-wifi-btn').addEventListener('click', () => {
+    const wifiSsid = document.getElementById('wifi-ssid')?.value;
+    const wifiPass = document.getElementById('wifi-password')?.value;
+
+    // Check if either value is missing or empty
+    if (!wifiSsid || wifiSsid.trim() === '' || !wifiPass || wifiPass.trim() === '') {
+        console.error('Error: Both WiFi SSID and password must be provided and non-empty');
+        return; // Exit early without sending commands
+    }
+
+    sendCmd(`wifi-ssid:${wifiSsid}`);
+    sendCmd(`wifi-pass:${wifiPass}`);
 });
 
 
