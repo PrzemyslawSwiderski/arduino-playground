@@ -1,4 +1,3 @@
-
 const img = document.getElementById('stream');
 const saveBtn = document.getElementById('save-frame-btn');
 const addressSelect = document.getElementById('websocket-address');

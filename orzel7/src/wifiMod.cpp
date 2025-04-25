@@ -1,35 +1,46 @@
 #include <WiFi.h>
-#include <Preferences.h>
 #include "secrets.h"
 #include "wifiMod.h"
 #include "sleepMod.h"
+#include "prefsMod.h"
 #include "pins.h"
 #include "esp_log.h"
 
 static const char *TAG = "wifiMod";
 
-Preferences preferences;
-
 static String wiFiAddr = "";
+
+static String wiFiSSID = "";
+static String wiFiPass = "";
 
 static bool isAPMode = true;
 
 void saveCurrentMode()
 {
-  preferences.begin("wifi_mode", false);
-  preferences.putBool("isAPMode", isAPMode);
-  preferences.end();
+  saveBoolean("isAPMode", isAPMode);
+}
+
+void saveWiFiCreds(String wiFiSSID, String wiFiPass)
+{
+  saveString("wiFiSSID", wiFiSSID);
+  saveString("wiFiPass", wiFiPass);
 }
 
 void startAsClient()
 {
   sleepModOn();
   ESP_LOGI(TAG, "Running in Client mode...");
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  ESP_LOGI(TAG, "Connecting to: %s", wiFiSSID);
+  WiFi.begin(wiFiSSID, wiFiPass);
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     ESP_LOGI(TAG, ".");
+    if (WiFi.status() == WL_CONNECT_FAILED || WiFi.status() == WL_NO_SSID_AVAIL)
+    {
+      ESP_LOGW(TAG, "Can not connect to WiFi with provided credentials");
+      return;
+    }
   }
   ESP_LOGI(TAG, "WiFi connected");
   wiFiAddr = WiFi.localIP().toString();
@@ -58,7 +69,7 @@ void stopWifi()
 
 void printIpInfo()
 {
-  ESP_LOGI(TAG, "Rover Ready! Use 'http://%s' to connect", wiFiAddr);
+  ESP_LOGI(TAG, "Device Ready! Use 'http://%s' to connect", wiFiAddr);
 }
 
 void runWifiMode()
@@ -97,9 +108,9 @@ void switchWifiMode()
 void setupWifiMod()
 {
   // Load isAPMode from Preferences
-  preferences.begin("wifi_mode", true);             // Read-only mode
-  isAPMode = preferences.getBool("isAPMode", true); // Default to true (AP mode)
-  preferences.end();
+  isAPMode = readBool("isAPMode");
+  wiFiSSID = readString("wiFiSSID");
+  wiFiPass = readString("wiFiPass");
 
   pinMode(RED_LIGHT_GPIO_NUM, OUTPUT);
   runWifiMode();

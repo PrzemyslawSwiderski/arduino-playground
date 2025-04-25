@@ -4,6 +4,7 @@
 #include "pins.h"
 #include "roverMod.h"
 
+// Sensor model: HC-SR501
 static const char *TAG = "pirMod";
 
 // Checks if motion was detected, sets LED HIGH and starts a timer
@@ -15,13 +16,26 @@ static void detectsMovement()
     ledOff();
 }
 
+static void pirSensorTask(void *pvParameters)
+{
+    while (1)
+    {
+        int pirState = digitalRead(PIR_SENSOR_PIN);
+        ESP_LOGI(TAG, "PIR state: %d", pirState);
+        vTaskDelay(pdMS_TO_TICKS(500)); // Yield to other tasks
+    }
+}
+
 void setupPirMod()
 {
     pinMode(PIR_SENSOR_PIN, INPUT_PULLUP);
-    // Set motionSensor pin as interrupt, assign interrupt function and set RISING mode
 
-    ESP_LOGI(TAG, "Waiting for PIR sensor to stabilize (30s)...");
-    delay(30000); // HC-SR501 needs ~30-60s to stabilize after power-on
-    ESP_LOGI(TAG, "Stabilization completed");
-    attachInterrupt(digitalPinToInterrupt(PIR_SENSOR_PIN), detectsMovement, RISING);
+    // Create WebSocket task
+    xTaskCreate(
+        pirSensorTask,
+        "PirSensorTask",
+        2048,
+        NULL,
+        5, // Priority (1-25, higher is more urgent)
+        NULL);
 }

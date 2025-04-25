@@ -92,6 +92,10 @@ void setupRoverMod()
   ledcAttach(LEFT_FRONT_MOTOR, freq, lresolution);
   ledcAttach(RIGHT_BACK_MOTOR, freq, lresolution);
   ledcAttach(RIGHT_FRONT_MOTOR, freq, lresolution);
+  
+  // Initial stop
+  roverStop();
+
   // Create autoStop task
   xTaskCreate(
       autoStopTask,         // Task function
