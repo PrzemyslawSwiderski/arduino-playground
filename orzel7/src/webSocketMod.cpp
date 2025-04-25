@@ -228,9 +228,10 @@ static void healthCheck()
   }
   else
   {
-    ESP_LOGI(TAG, "CLIENTS: %u", ws.connectedClients());
+    int clients = ws.connectedClients(true);
+    ESP_LOGI(TAG, "CLIENTS: %d", clients);
     ESP_LOGI(TAG, "HEALTH CHECK SUCCESS");
-    if (ws.connectedClients())
+    if (clients)
     {
       sleepModOff();
     }

@@ -10,32 +10,24 @@ static const char *TAG = "wifiMod";
 static const char *IS_AP_MODE_KEY = "isAPMode";
 static const char *WIFI_SSID_KEY = "wifiSsid";
 static const char *WIFI_PASS_KEY = "wifiPass";
-static const unsigned long CONNECT_TIMEOUT_MS = 2000;
+static const unsigned long CONNECT_TIMEOUT_MS = 5000;
 
 static String wiFiAddr = "";
 
-static String wifiSsid = "";
-static String wifiPass = "";
-
-static bool isAPMode = true;
-
 bool ifAPModeOn()
 {
-  return isAPMode;
-}
-
-void saveCurrentMode()
-{
-  saveBoolean(IS_AP_MODE_KEY, isAPMode);
+  return readBool(IS_AP_MODE_KEY);
 }
 
 void setWifiSsid(String wifiSsid)
 {
+  ESP_LOGI(TAG, "Setting Wifi SSID to: %s", wifiSsid.c_str());
   saveString(WIFI_SSID_KEY, wifiSsid);
 }
 
 void setWifiPassword(String wifiPass)
 {
+  ESP_LOGI(TAG, "Setting Wifi Pass");
   saveString(WIFI_PASS_KEY, wifiPass);
 }
 
@@ -47,7 +39,7 @@ void startAsAP()
   ESP_LOGI(TAG, "AP IP address: %s", myIP);
   wiFiAddr = myIP.toString();
 
-  saveCurrentMode();
+  saveBoolean(IS_AP_MODE_KEY, true);
 }
 
 void stopWifi()
@@ -68,6 +60,8 @@ bool isConnectionFailed(unsigned long startTime)
 
 void startAsClient()
 {
+  String wifiSsid = readString(WIFI_SSID_KEY);
+  String wifiPass = readString(WIFI_PASS_KEY);
   ESP_LOGI(TAG, "Running in Client mode...");
   ESP_LOGI(TAG, "Connecting to: %s", wifiSsid.c_str());
   WiFi.begin(wifiSsid, wifiPass);
@@ -87,7 +81,7 @@ void startAsClient()
   ESP_LOGI(TAG, "WiFi connected");
   wiFiAddr = WiFi.localIP().toString();
 
-  saveCurrentMode();
+  saveBoolean(IS_AP_MODE_KEY, false);
 }
 
 void printIpInfo()
@@ -97,18 +91,13 @@ void printIpInfo()
 
 void runWifiMode()
 {
-  // Toggle mode
-  if (isAPMode)
+  if (ifAPModeOn())
   {
-    ESP_LOGI(TAG, "Running in Client mode...");
-    stopWifi();      // Disconnect current mode
-    startAsClient(); // Start Client mode
+    startAsAP(); // Start AP mode
   }
   else
   {
-    ESP_LOGI(TAG, "Running in AP mode...");
-    stopWifi();  // Disconnect current mode
-    startAsAP(); // Start AP mode
+    startAsClient(); // Start Client mode
   }
   printIpInfo();
 }
@@ -116,25 +105,20 @@ void runWifiMode()
 void switchWifiMode()
 {
   ESP_LOGI(TAG, "Toggling WIFI mode");
-  if (isAPMode)
+  if (ifAPModeOn())
   {
-    isAPMode = false;
+    saveBoolean(IS_AP_MODE_KEY, false);
   }
   else
   {
-    isAPMode = true;
+    saveBoolean(IS_AP_MODE_KEY, true);
   }
-  saveCurrentMode();
+  stopWifi();  // Disconnect current mode
   runWifiMode();
 }
 
 void setupWifiMod()
 {
-  // Load isAPMode from Preferences
-  isAPMode = readBool(IS_AP_MODE_KEY);
-  wifiSsid = readString(WIFI_SSID_KEY);
-  wifiPass = readString(WIFI_PASS_KEY);
-
   pinMode(RED_LIGHT_GPIO_NUM, OUTPUT);
   runWifiMode();
   digitalWrite(RED_LIGHT_GPIO_NUM, LOW);

@@ -11,7 +11,7 @@
 #define DEEP_SLEEP_DURATION_MICROS 1000 * DEEP_SLEEP_DURATION_MILLIS
 
 // Wake duration to check for connections (milliseconds)
-#define WAKE_CHECK_DURATION_MILLIS 2 * 1000
+#define WAKE_CHECK_DURATION_MILLIS 3 * 1000
 
 static const char *TAG = "sleepMod";
 
