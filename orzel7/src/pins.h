@@ -24,8 +24,8 @@
 #define RED_LIGHT_GPIO_NUM 33
 
 // Wheel pins
-#define LEFT_BACK_MOTOR 13
 #define LEFT_FRONT_MOTOR 12
+#define LEFT_BACK_MOTOR 13
 #define RIGHT_BACK_MOTOR 14
 #define RIGHT_FRONT_MOTOR 15
 

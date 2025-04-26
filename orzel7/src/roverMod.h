@@ -8,4 +8,4 @@ void roverLeft();
 void roverRight();
 void ledOn();
 void ledOff();
-void loopRoverMod();
+void roverToSleep();

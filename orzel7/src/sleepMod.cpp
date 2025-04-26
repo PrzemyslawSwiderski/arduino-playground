@@ -4,6 +4,7 @@
 #include "esp_camera.h"
 #include "utilsMod.h"
 #include "wifiMod.h"
+#include "roverMod.h"
 
 #define DEEP_SLEEP_DURATION_MILLIS 30 * 1000
 
@@ -32,6 +33,7 @@ static void tryToSleep()
     esp_sleep_enable_timer_wakeup(DEEP_SLEEP_DURATION_MICROS);
 
     // Enter deep sleep
+    roverToSleep();
     esp_deep_sleep_start();
 }
 

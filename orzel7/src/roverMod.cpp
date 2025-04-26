@@ -11,7 +11,6 @@ static const int freq = 2000;
 static const int lresolution = 8;
 static unsigned long lastMovementTime = 0;
 static const unsigned long AUTO_STOP_DELAY_TIME = 500; // time to auto stop in ms
-static TaskHandle_t autoStopTaskHandle = NULL;         // Handle for autoStop task
 
 void roverStop()
 {
@@ -68,6 +67,15 @@ void ledOff()
   digitalWrite(LED_LIGHT_GPIO_NUM, LOW);
 }
 
+void roverToSleep()
+{
+  roverStop();
+  gpio_hold_en(GPIO_NUM_12);
+  gpio_hold_en(GPIO_NUM_13);
+  gpio_hold_en(GPIO_NUM_14);
+  gpio_hold_en(GPIO_NUM_15);
+}
+
 static void autoStopTask(void *pvParameters)
 {
   const TickType_t checkInterval = pdMS_TO_TICKS(50);
@@ -92,9 +100,11 @@ void setupRoverMod()
   ledcAttach(LEFT_FRONT_MOTOR, freq, lresolution);
   ledcAttach(RIGHT_BACK_MOTOR, freq, lresolution);
   ledcAttach(RIGHT_FRONT_MOTOR, freq, lresolution);
-  
-  // Initial stop
-  roverStop();
+
+  gpio_hold_dis(GPIO_NUM_12);
+  gpio_hold_dis(GPIO_NUM_13);
+  gpio_hold_dis(GPIO_NUM_14);
+  gpio_hold_dis(GPIO_NUM_15);
 
   // Create autoStop task
   xTaskCreate(
@@ -103,5 +113,5 @@ void setupRoverMod()
       2048,                 // Stack size (bytes)
       NULL,                 // Task parameter
       0,                    // Priority (same or lower than roverFwd task)
-      &autoStopTaskHandle); // Task handle
+      NULL); // Task handle
 }
