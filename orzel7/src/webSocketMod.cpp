@@ -4,6 +4,7 @@
 #include "utilsMod.h"
 #include "wifiMod.h"
 #include "sleepMod.h"
+#include "pirMod.h"
 #include "esp_camera.h"
 #include <WebSocketsServer.h>
 #include <unordered_map>
@@ -77,6 +78,10 @@ static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHa
      { resetCameraMod(); }},
     {DataKey{(const uint8_t *)"wifi-change", 11}, [](uint8_t clientId)
      { switchWifiMode(); }},
+    {DataKey{(const uint8_t *)"piron", 5}, [](uint8_t clientId)
+     { switchPirOn(); }},
+    {DataKey{(const uint8_t *)"piroff", 6}, [](uint8_t clientId)
+     { switchPirOff(); }},
 };
 
 // Command map for integer value commands

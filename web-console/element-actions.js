@@ -2,18 +2,18 @@ import { sendCmd } from "./websockets.js";
 
 
 document.getElementById('light-on')
-    .addEventListener('mousedown', (e) => {
+    .addEventListener('mousedown', () => {
         sendCmd('ledon');
     });
 
 document.getElementById('light-off')
-    .addEventListener('mousedown', (e) => {
+    .addEventListener('mousedown', () => {
         sendCmd('ledoff');
     });
 
 
 document.getElementById('get-info-button')
-    .addEventListener('mousedown', (e) => {
+    .addEventListener('mousedown', () => {
         sendCmd('info');
     });
 
@@ -21,22 +21,22 @@ document.getElementById('get-info-button')
 const consoleBox = document.getElementById('console-box');
 
 document.getElementById('clear-console-button')
-    .addEventListener('mousedown', (e) => {
+    .addEventListener('mousedown', () => {
         consoleBox.innerHTML = '';
     });
 
 document.getElementById('reset-button')
-    .addEventListener('mousedown', (e) => {
+    .addEventListener('mousedown', () => {
         sendCmd('reset');
     });
 
 document.getElementById('wifi-switch-button')
-    .addEventListener('mousedown', (e) => {
+    .addEventListener('mousedown', () => {
         sendCmd('wifi-change');
     });
 
 document.getElementById('reset-cam-button')
-    .addEventListener('mousedown', (e) => {
+    .addEventListener('mousedown', () => {
         sendCmd('reset-cam');
     });
 
@@ -151,5 +151,12 @@ document.getElementById('change-wifi-btn').addEventListener('click', () => {
     sendCmd(`wifi-pass:${wifiPass}`);
 });
 
+document.getElementById('pir-on')
+    .addEventListener('mousedown', () => {
+        sendCmd('piron');
+    });
 
-const wifiCredentials = document.getElementById('wifi-ssid');
+document.getElementById('pir-off')
+    .addEventListener('mousedown', () => {
+        sendCmd('piroff');
+    });
