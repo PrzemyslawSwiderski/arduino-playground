@@ -120,21 +120,6 @@ contrastSlider.addEventListener('input', (e) => {
 const defaultContrast = 0;
 setContrast(defaultContrast);
 
-// Connection type
-
-document.getElementById('connection-type').addEventListener('change', function () {
-    const websocketAddress = document.getElementById('websocket-address');
-
-    if (this.value === 'client') {
-        websocketAddress.value = '192.168.1.39';
-    } else {
-        websocketAddress.value = '192.168.4.1';
-    }
-});
-// Initialize display based on default selection
-document.getElementById('connection-type').dispatchEvent(new Event('change'));
-
-
 // Join WiFi
 
 document.getElementById('change-wifi-btn').addEventListener('click', () => {

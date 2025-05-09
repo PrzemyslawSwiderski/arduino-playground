@@ -9,7 +9,7 @@ let ws = null;
 
 function resolveAddress() {
     const address = addressSelect.value;
-    return `ws://${address}:443/ws`;
+    return address;
 }
 
 function establishConnection() {

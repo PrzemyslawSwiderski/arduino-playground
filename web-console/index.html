@@ -25,12 +25,11 @@
         <div class="control-panel">
             <div class="row justify-content-center">
                 <div class="col-8">
-                    <select id="connection-type" class="form-select mb-3">
-                        <option value="client" selected>Client</option>
-                        <option value="access-point">Access Point</option>
+                    <select id="websocket-address" class="form-select mb-3">
+                        <option value="wss://robot-ws.pswidersk.com" selected>Zgierz</option>
+                        <option value="ws://192.168.1.39:443/ws">Lodz</option>
+                        <option value="ws://192.168.4.1:443/ws">AP</option>
                     </select>
-                    <input type="text" id="websocket-address" class="form-control mb-3" placeholder="WebSocket Address"
-                        value="192.168.1.39">
                 </div>
             </div>
             <div class="row justify-content-center mt-3">
