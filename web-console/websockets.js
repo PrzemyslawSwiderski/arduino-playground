@@ -59,12 +59,14 @@ function establishConnection() {
 
 establishConnection();
 
+const connectionRetryInterval = 20;
+
 setInterval(() => {
     if (ws.readyState === WebSocket.CLOSED) {
         console.log('Retrying connection...');
         establishConnection();
     }
-}, 20);
+}, connectionRetryInterval);
 
 connectBtn.addEventListener('click', () => establishConnection());
 
