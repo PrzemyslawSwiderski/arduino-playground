@@ -13,9 +13,11 @@ static const char *TAG = "pirMod";
 
 static const char *NOTIF_MSG = "Orzel7 detected movement!!!";
 static const char *IS_PIR_ON_KEY = "isPirOn";
+static const unsigned long NOTIF_COOLDOWN = 5 * 60000; // 5 minutes notification cooldown
 
 static int prevPirState = 1;
 static int motionDetected = 0;
+static unsigned long lastNotifTime = 10000000;
 
 bool ifMotionDetected()
 {
@@ -51,14 +53,33 @@ static void sendNofication()
     http.end();
 }
 
-// Checks if motion was detected, sets LED HIGH and starts a timer
-static void detectsMovement()
+static void handleMotionDetection()
 {
     motionDetected = 1;
+
+    ESP_LOGI(TAG, "Motion detected!");
+    if (!readBool(IS_PIR_ON_KEY))
+    {
+        ESP_LOGI(TAG, "Skipping Notfication, notification sending is OFF.");
+        motionDetected = 0;
+        return;
+    }
+
+    unsigned long currentTime = millis();
+    if (!isTimeAfter(currentTime, lastNotifTime, NOTIF_COOLDOWN))
+    {
+        ESP_LOGI(TAG, "Skipping Notfication, notification was sent recently.");
+        motionDetected = 0;
+        return;
+    }
+
+    ESP_LOGI(TAG, "Sending notification...");
     ledOn();
     sendNofication();
     vTaskDelay(pdMS_TO_TICKS(5000));
     ledOff();
+    lastNotifTime = millis();
+
     motionDetected = 0;
 }
 
@@ -68,11 +89,9 @@ static void pirSensorTask(void *pvParameters)
     {
         int pirState = digitalRead(PIR_SENSOR_PIN);
         ESP_LOGI(TAG, "PIR state: %d", pirState);
-        if (readBool(IS_PIR_ON_KEY) && prevPirState == 0 && pirState == 1)
+        if (prevPirState == 0 && pirState == 1)
         {
-            unsigned long currentTime = millis();
-            ESP_LOGI(TAG, "Motion detected! Sending notification...");
-            detectsMovement();
+            handleMotionDetection();
         }
         prevPirState = pirState;
         vTaskDelay(pdMS_TO_TICKS(500));

@@ -5,6 +5,7 @@
 #include "utilsMod.h"
 #include "wifiMod.h"
 #include "roverMod.h"
+#include "prefsMod.h"
 #include "pirMod.h"
 
 #define DEEP_SLEEP_DURATION_MILLIS 30 * 1000
@@ -16,15 +17,16 @@
 #define WAKE_CHECK_DURATION_MILLIS 3 * 1000
 
 static const char *TAG = "sleepMod";
+static const char *IS_SLEEP_DISABLED_KEY = "isSleepDisabled";
 
-static int shouldSleep = 1;
+static int anyOneConnected = 0;
 
 // Function to enter deep sleep
 static void tryToSleep()
 {
-    if (!shouldSleep || ifAPModeOn() || ifMotionDetected())
+    if (readBool(IS_SLEEP_DISABLED_KEY) || anyOneConnected || ifAPModeOn() || ifMotionDetected())
     {
-        ESP_LOGI(TAG, "Sleep mode disabled, ignoring this cycle");
+        ESP_LOGI(TAG, "Ignoring this sleep cycle");
         return;
     }
 
@@ -48,16 +50,28 @@ static void sleepTask(void *pvParameters)
     }
 }
 
-void sleepModOff()
+void enableSleep()
 {
-    ESP_LOGI(TAG, "Turning sleep OFF");
-    shouldSleep = 0;
+    ESP_LOGI(TAG, "Toggling Sleep ON");
+    saveBoolean(IS_SLEEP_DISABLED_KEY, false);
 }
 
-void sleepModOn()
+void disableSleep()
 {
-    ESP_LOGI(TAG, "Turning sleep ON");
-    shouldSleep = 1;
+    ESP_LOGI(TAG, "Toggling Sleep OFF");
+    saveBoolean(IS_SLEEP_DISABLED_KEY, true);
+}
+
+void anyClientsConnected()
+{
+    ESP_LOGI(TAG, "Some clients were connected");
+    anyOneConnected = 1;
+}
+
+void noClientsConnected()
+{
+    ESP_LOGI(TAG, "No clients were connected");
+    anyOneConnected = 0;
 }
 
 void setupSleepMod()

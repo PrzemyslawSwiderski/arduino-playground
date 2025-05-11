@@ -44,9 +44,9 @@ static void sendInfo(uint8_t clientId)
 
   char buffer[256];
   snprintf(buffer, sizeof(buffer),
-           "Free Heap: %u bytes (%.2f%% of %u total)\n"
-           "Free PSRAM: %u bytes (%.2f%% of %u total)\n"
-           "Clients: %u\n",
+           "Free Heap: %u bytes (%.2f%% of %u total) | "
+           "Free PSRAM: %u bytes (%.2f%% of %u total) | "
+           "Clients: %u",
            freeHeap, freeHeapPercent, totalHeapSize,
            freePsram, freePsramPercent, totalPsramSize,
            ws.connectedClients());
@@ -82,6 +82,10 @@ static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHa
      { switchPirOn(); }},
     {DataKey{(const uint8_t *)"piroff", 6}, [](uint8_t clientId)
      { switchPirOff(); }},
+    {DataKey{(const uint8_t *)"sleep-on", 8}, [](uint8_t clientId)
+     { enableSleep(); }},
+    {DataKey{(const uint8_t *)"sleep-off", 9}, [](uint8_t clientId)
+     { disableSleep(); }},
 };
 
 // Command map for integer value commands
@@ -193,10 +197,10 @@ void onWsEvent(uint8_t clientId, WStype_t type, uint8_t *data, size_t len)
   {
   case WStype_DISCONNECTED:
     ESP_LOGI(TAG, "Client disconnected: ID %u", clientId);
-    sleepModOn();
+    noClientsConnected();
     break;
   case WStype_CONNECTED:
-    sleepModOff();
+    anyClientsConnected();
     ESP_LOGI(TAG, "Client connected: ID %u", clientId);
     ws.sendTXT(clientId, "Hello from ESP32-CAM!");
     break;
@@ -238,11 +242,11 @@ static void healthCheck()
     ESP_LOGI(TAG, "HEALTH CHECK SUCCESS");
     if (clients)
     {
-      sleepModOff();
+      anyClientsConnected();
     }
     else
     {
-      sleepModOn();
+      noClientsConnected();
     }
   }
 }

@@ -136,6 +136,8 @@ document.getElementById('change-wifi-btn').addEventListener('click', () => {
     sendCmd(`wifi-pass:${wifiPass}`);
 });
 
+// PIR (movement) sensor control
+
 document.getElementById('pir-on')
     .addEventListener('mousedown', () => {
         sendCmd('piron');
@@ -144,4 +146,16 @@ document.getElementById('pir-on')
 document.getElementById('pir-off')
     .addEventListener('mousedown', () => {
         sendCmd('piroff');
+    });
+
+// Sleep control
+
+document.getElementById('sleep-on')
+    .addEventListener('mousedown', () => {
+        sendCmd('sleep-on');
+    });
+
+document.getElementById('sleep-off')
+    .addEventListener('mousedown', () => {
+        sendCmd('sleep-off');
     });

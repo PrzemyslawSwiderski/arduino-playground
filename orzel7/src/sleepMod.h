@@ -1,6 +1,7 @@
 #pragma once
 
 void setupSleepMod();
-
-void sleepModOff();
-void sleepModOn();
+void enableSleep();
+void disableSleep();
+void anyClientsConnected();
+void noClientsConnected();
