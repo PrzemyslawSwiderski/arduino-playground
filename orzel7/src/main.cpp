@@ -7,6 +7,7 @@
 #include "webSocketMod.h"
 #include "pirMod.h"
 #include "sleepMod.h"
+#include "pcaMod.h"
 #include "esp_log.h"
 
 static const char *TAG = "main";
@@ -26,7 +27,7 @@ void setup()
   {
     ESP_LOGI(TAG, "Booting from power-on or reset");
   }
-
+  setupPcaMod();
   setupRoverMod();
   setupCameraMod();
 

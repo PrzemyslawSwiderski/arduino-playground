@@ -2,58 +2,47 @@
 #include "pins.h"
 #include "roverMod.h"
 #include "utilsMod.h"
+#include "pcaMod.h"
 #include "esp_log.h"
 
 static const char *TAG = "roverMod";
 
-static int speed = 150;
-static const int freq = 2000;
-static const int lresolution = 8;
 static unsigned long lastMovementTime = 0;
 static const unsigned long AUTO_STOP_DELAY_TIME = 500; // time to auto stop in ms
 
 void roverStop()
 {
-  ledcWrite(LEFT_BACK_MOTOR, 0);
-  ledcWrite(LEFT_FRONT_MOTOR, 0);
-  ledcWrite(RIGHT_BACK_MOTOR, 0);
-  ledcWrite(RIGHT_FRONT_MOTOR, 0);
+  stopWheels(LEFT_BACK_MOTOR_CHANNEL);
+  stopWheels(LEFT_FRONT_MOTOR_CHANNEL);
+  stopWheels(RIGHT_BACK_MOTOR_CHANNEL);
+  stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
 }
 
 void roverFwd()
 {
-  ledcWrite(LEFT_BACK_MOTOR, 0);
-  ledcWrite(LEFT_FRONT_MOTOR, speed);
-  ledcWrite(RIGHT_BACK_MOTOR, 0);
-  ledcWrite(RIGHT_FRONT_MOTOR, speed);
+  moveWheels(RIGHT_FRONT_MOTOR_CHANNEL);
+  moveWheels(LEFT_FRONT_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
 void roverBack()
 {
-  ledcWrite(LEFT_BACK_MOTOR, speed);
-  ledcWrite(LEFT_FRONT_MOTOR, 0);
-  ledcWrite(RIGHT_BACK_MOTOR, speed);
-  ledcWrite(RIGHT_FRONT_MOTOR, 0);
+  moveWheels(RIGHT_BACK_MOTOR_CHANNEL);
+  moveWheels(LEFT_BACK_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
 void roverRight()
 {
-
-  ledcWrite(LEFT_BACK_MOTOR, 0);
-  ledcWrite(LEFT_FRONT_MOTOR, speed);
-  ledcWrite(RIGHT_BACK_MOTOR, speed);
-  ledcWrite(RIGHT_FRONT_MOTOR, 0);
+  moveWheels(RIGHT_BACK_MOTOR_CHANNEL);
+  moveWheels(LEFT_FRONT_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
 void roverLeft()
 {
-  ledcWrite(LEFT_BACK_MOTOR, speed);
-  ledcWrite(LEFT_FRONT_MOTOR, 0);
-  ledcWrite(RIGHT_BACK_MOTOR, 0);
-  ledcWrite(RIGHT_FRONT_MOTOR, speed);
+  moveWheels(RIGHT_FRONT_MOTOR_CHANNEL);
+  moveWheels(LEFT_BACK_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
@@ -70,10 +59,6 @@ void ledOff()
 void roverToSleep()
 {
   roverStop();
-  gpio_hold_en(GPIO_NUM_12);
-  gpio_hold_en(GPIO_NUM_13);
-  gpio_hold_en(GPIO_NUM_14);
-  gpio_hold_en(GPIO_NUM_15);
 }
 
 static void autoStopTask(void *pvParameters)
@@ -96,22 +81,12 @@ void setupRoverMod()
   pinMode(LED_LIGHT_GPIO_NUM, OUTPUT);
   digitalWrite(LED_LIGHT_GPIO_NUM, LOW);
 
-  ledcAttach(LEFT_BACK_MOTOR, freq, lresolution); /* 2000 hz PWM, 8-bit resolution and range from 0 to 255 */
-  ledcAttach(LEFT_FRONT_MOTOR, freq, lresolution);
-  ledcAttach(RIGHT_BACK_MOTOR, freq, lresolution);
-  ledcAttach(RIGHT_FRONT_MOTOR, freq, lresolution);
-
-  gpio_hold_dis(GPIO_NUM_12);
-  gpio_hold_dis(GPIO_NUM_13);
-  gpio_hold_dis(GPIO_NUM_14);
-  gpio_hold_dis(GPIO_NUM_15);
-
   // Create autoStop task
   xTaskCreate(
-      autoStopTask,         // Task function
-      "AutoStopTask",       // Task name
-      2048,                 // Stack size (bytes)
-      NULL,                 // Task parameter
-      0,                    // Priority (same or lower than roverFwd task)
-      NULL); // Task handle
+      autoStopTask,   // Task function
+      "AutoStopTask", // Task name
+      2048,           // Stack size (bytes)
+      NULL,           // Task parameter
+      0,              // Priority (same or lower than roverFwd task)
+      NULL);          // Task handle
 }
