@@ -22,6 +22,8 @@ void roverFwd()
 {
   moveWheels(RIGHT_FRONT_MOTOR_CHANNEL);
   moveWheels(LEFT_FRONT_MOTOR_CHANNEL);
+  stopWheels(RIGHT_BACK_MOTOR_CHANNEL);
+  stopWheels(LEFT_BACK_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
@@ -29,6 +31,8 @@ void roverBack()
 {
   moveWheels(RIGHT_BACK_MOTOR_CHANNEL);
   moveWheels(LEFT_BACK_MOTOR_CHANNEL);
+  stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
+  stopWheels(LEFT_FRONT_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
@@ -36,6 +40,8 @@ void roverRight()
 {
   moveWheels(RIGHT_BACK_MOTOR_CHANNEL);
   moveWheels(LEFT_FRONT_MOTOR_CHANNEL);
+  stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
+  stopWheels(LEFT_BACK_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
@@ -43,6 +49,8 @@ void roverLeft()
 {
   moveWheels(RIGHT_FRONT_MOTOR_CHANNEL);
   moveWheels(LEFT_BACK_MOTOR_CHANNEL);
+  stopWheels(RIGHT_BACK_MOTOR_CHANNEL);
+  stopWheels(LEFT_FRONT_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 

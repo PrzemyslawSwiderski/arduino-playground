@@ -18,7 +18,7 @@ void setupPcaMod()
 void moveWheels(int channel)
 {
     // int pulse = 2408;
-    int pulse = 500;
+    int pulse = 1500;
     pwm.setPWM(channel, 0, pulse); // Set Channel 1 to ~58.8% duty cycle
 }
 
