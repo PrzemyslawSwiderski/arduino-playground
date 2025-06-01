@@ -129,3 +129,8 @@ h1 {
 .wifi-credentials {
     transition: all 0.3s ease;
 }
+
+.form-check.form-switch .form-check-input {
+    transform: scale(2.0);
+    /* Scale up the switch for better visibility */
+}

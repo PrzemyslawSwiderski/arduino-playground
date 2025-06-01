@@ -33,8 +33,8 @@ void setupCameraMod()
   config.frame_size = FRAMESIZE_HQVGA;
   config.jpeg_quality = 30;
   config.fb_count = 2;
-  // config.fb_location = CAMERA_FB_IN_PSRAM;
-  config.fb_location = CAMERA_FB_IN_DRAM;
+  config.fb_location = CAMERA_FB_IN_PSRAM;
+  // config.fb_location = CAMERA_FB_IN_DRAM;
   config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
 
   // camera init

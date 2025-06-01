@@ -159,3 +159,12 @@ document.getElementById('sleep-off')
     .addEventListener('mousedown', () => {
         sendCmd('sleep-off');
     });
+
+// Wheels / Head control
+    
+const controlSwitch = document.getElementById('controlSwitch');
+const activeMode = document.getElementById('activeMode');
+
+controlSwitch.addEventListener('change', () => {
+    activeMode.textContent = controlSwitch.checked ? 'Head' : 'Wheels';
+});

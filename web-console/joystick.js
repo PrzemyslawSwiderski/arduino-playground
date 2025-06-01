@@ -2,7 +2,7 @@ import { sendCmd } from "./websockets.js";
 
 const joystickContainer = document.getElementById('joystick-container');
 const joystick = document.getElementById('joystick');
-const deadZoneMargin = 40;
+const controlSwitch = document.getElementById('controlSwitch');
 
 let isDragging = false;
 let lastX = 0; // Last known X position relative to container
@@ -38,15 +38,21 @@ function moveJoystick(x, y) {
     // Determine command based on angle
     const angle = Math.atan2(dy, dx) * 180 / Math.PI;
     const distance = Math.sqrt(dx * dx + dy * dy);
+    const maxDistance = 150;
+    const distanceScaled = Math.min(Number(((distance / maxDistance) * 100).toFixed(0)), 100);
 
     let command = 'stop';
 
-    if (distance > deadZoneMargin) { // Dead zone
-        if (angle >= -45 && angle < 45) command = 'right';
-        else if (angle >= 45 && angle < 135) command = 'back';
-        else if (angle >= 135 || angle < -135) command = 'left';
-        else if (angle >= -135 && angle < -45) command = 'go';
-    }
+    const headControl = controlSwitch.checked;
+    const rightCmd = headControl ? 'rotate-right' : 'right';
+    const backCmd = headControl ? 'rotate-down' : 'back';
+    const leftCmd = headControl ? 'rotate-left' : 'left';
+    const goCmd = headControl ? 'rotate-up' : 'go';
+
+    if (angle >= -45 && angle < 45) command = `${rightCmd}:${distanceScaled}`;
+    else if (angle >= 45 && angle < 135) command = `${backCmd}:${distanceScaled}`;
+    else if (angle >= 135 || angle < -135) command = `${leftCmd}:${distanceScaled}`;
+    else if (angle >= -135 && angle < -45) command = `${goCmd}:${distanceScaled}`;
 
     sendCmd(command);
     lastSentTime = now;

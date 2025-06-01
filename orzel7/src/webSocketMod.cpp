@@ -56,16 +56,8 @@ static void sendInfo(uint8_t clientId)
 
 // Command map
 static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHash> simpleCommands = {
-    {DataKey{(const uint8_t *)"go", 2}, [](uint8_t clientId)
-     { roverFwd(); }},
     {DataKey{(const uint8_t *)"stop", 4}, [](uint8_t clientId)
      { roverStop(); }},
-    {DataKey{(const uint8_t *)"left", 4}, [](uint8_t clientId)
-     { roverLeft(); }},
-    {DataKey{(const uint8_t *)"right", 5}, [](uint8_t clientId)
-     { roverRight(); }},
-    {DataKey{(const uint8_t *)"back", 4}, [](uint8_t clientId)
-     { roverBack(); }},
     {DataKey{(const uint8_t *)"ledon", 5}, [](uint8_t clientId)
      { ledOn(); }},
     {DataKey{(const uint8_t *)"ledoff", 6}, [](uint8_t clientId)
@@ -94,6 +86,10 @@ static const std::unordered_map<DataKey, std::function<void(int)>, DataKeyHash> 
     {DataKey{(const uint8_t *)"brightness", 10}, setBrightness},
     {DataKey{(const uint8_t *)"size", 4}, setSize},
     {DataKey{(const uint8_t *)"contrast", 8}, setContrast},
+    {DataKey{(const uint8_t *)"go", 2}, roverFwd},
+    {DataKey{(const uint8_t *)"back", 4}, roverBack},
+    {DataKey{(const uint8_t *)"left", 4}, roverLeft},
+    {DataKey{(const uint8_t *)"right", 5}, roverRight},
 };
 
 // Command map for string value commands
@@ -153,7 +149,7 @@ static void handleValueCommand(uint8_t clientId, uint8_t *data, size_t len, char
       return;
     }
     intEntry->second(value);
-    ESP_LOGI(TAG, "Processed int command: %.*s=%d", (int)keyLen, (char *)data, value);
+    ESP_LOGD(TAG, "Processed int command: %.*s=%d", (int)keyLen, (char *)data, value);
     return;
   }
 

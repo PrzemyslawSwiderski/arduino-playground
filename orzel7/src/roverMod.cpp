@@ -18,37 +18,37 @@ void roverStop()
   stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
 }
 
-void roverFwd()
+void roverFwd(int speed)
 {
-  moveWheels(RIGHT_FRONT_MOTOR_CHANNEL);
-  moveWheels(LEFT_FRONT_MOTOR_CHANNEL);
+  moveWheels(RIGHT_FRONT_MOTOR_CHANNEL, speed);
+  moveWheels(LEFT_FRONT_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_BACK_MOTOR_CHANNEL);
   stopWheels(LEFT_BACK_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
-void roverBack()
+void roverBack(int speed)
 {
-  moveWheels(RIGHT_BACK_MOTOR_CHANNEL);
-  moveWheels(LEFT_BACK_MOTOR_CHANNEL);
+  moveWheels(RIGHT_BACK_MOTOR_CHANNEL, speed);
+  moveWheels(LEFT_BACK_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
   stopWheels(LEFT_FRONT_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
-void roverRight()
+void roverRight(int speed)
 {
-  moveWheels(RIGHT_BACK_MOTOR_CHANNEL);
-  moveWheels(LEFT_FRONT_MOTOR_CHANNEL);
+  moveWheels(RIGHT_BACK_MOTOR_CHANNEL, speed);
+  moveWheels(LEFT_FRONT_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
   stopWheels(LEFT_BACK_MOTOR_CHANNEL);
   lastMovementTime = millis();
 }
 
-void roverLeft()
+void roverLeft(int speed)
 {
-  moveWheels(RIGHT_FRONT_MOTOR_CHANNEL);
-  moveWheels(LEFT_BACK_MOTOR_CHANNEL);
+  moveWheels(RIGHT_FRONT_MOTOR_CHANNEL, speed);
+  moveWheels(LEFT_BACK_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_BACK_MOTOR_CHANNEL);
   stopWheels(LEFT_FRONT_MOTOR_CHANNEL);
   lastMovementTime = millis();

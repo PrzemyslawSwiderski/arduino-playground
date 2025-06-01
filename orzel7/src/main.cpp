@@ -20,8 +20,8 @@ void setup()
   // Check wake-up reason
   esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
   if (wakeup_reason == ESP_SLEEP_WAKEUP_TIMER)
-  {
-    ESP_LOGI(TAG, "Woke up from deep sleep");
+    {
+      ESP_LOGI(TAG, "Woke up from deep sleep");
   }
   else
   {
