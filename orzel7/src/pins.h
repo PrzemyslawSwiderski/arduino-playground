@@ -23,11 +23,15 @@
 #define LED_LIGHT_GPIO_NUM 4
 #define RED_LIGHT_GPIO_NUM 33
 
+// PIR sensor
+#define PIR_SENSOR_PIN 13
+
 // Wheel channels on PCA9685 extension chip
 #define LEFT_BACK_MOTOR_CHANNEL 7
 #define LEFT_FRONT_MOTOR_CHANNEL 6
 #define RIGHT_BACK_MOTOR_CHANNEL 5
 #define RIGHT_FRONT_MOTOR_CHANNEL 4
 
-// PIR sensor
-#define PIR_SENSOR_PIN 2
+// Head channels
+#define YAW_CHANNEL 8
+#define PITCH_CHANNEL 11

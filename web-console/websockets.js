@@ -104,7 +104,7 @@ fpsSlider.addEventListener('input', (e) => {
 
 
 export function sendCmd(arg) {
-    console.log(arg);
+    // console.log(arg);
     if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(arg);
     }

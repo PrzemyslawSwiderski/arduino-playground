@@ -7,8 +7,8 @@
 
 static const char *TAG = "roverMod";
 
-static unsigned long lastMovementTime = 0;
-static const unsigned long AUTO_STOP_DELAY_TIME = 500; // time to auto stop in ms
+static unsigned long headLastRotateTime = 0;
+static const unsigned long HEAD_AUTO_STOP_DELAY_TIME = 500; // time to auto stop in ms
 
 void roverStop()
 {
@@ -24,7 +24,7 @@ void roverFwd(int speed)
   moveWheels(LEFT_FRONT_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_BACK_MOTOR_CHANNEL);
   stopWheels(LEFT_BACK_MOTOR_CHANNEL);
-  lastMovementTime = millis();
+  headLastRotateTime = millis();
 }
 
 void roverBack(int speed)
@@ -33,7 +33,7 @@ void roverBack(int speed)
   moveWheels(LEFT_BACK_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
   stopWheels(LEFT_FRONT_MOTOR_CHANNEL);
-  lastMovementTime = millis();
+  headLastRotateTime = millis();
 }
 
 void roverRight(int speed)
@@ -42,7 +42,7 @@ void roverRight(int speed)
   moveWheels(LEFT_FRONT_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_FRONT_MOTOR_CHANNEL);
   stopWheels(LEFT_BACK_MOTOR_CHANNEL);
-  lastMovementTime = millis();
+  headLastRotateTime = millis();
 }
 
 void roverLeft(int speed)
@@ -51,7 +51,7 @@ void roverLeft(int speed)
   moveWheels(LEFT_BACK_MOTOR_CHANNEL, speed);
   stopWheels(RIGHT_BACK_MOTOR_CHANNEL);
   stopWheels(LEFT_FRONT_MOTOR_CHANNEL);
-  lastMovementTime = millis();
+  headLastRotateTime = millis();
 }
 
 void ledOn()
@@ -75,7 +75,7 @@ static void autoStopTask(void *pvParameters)
   while (1)
   {
     unsigned long currentTime = millis();
-    if (isTimeAfter(currentTime, lastMovementTime, AUTO_STOP_DELAY_TIME))
+    if (isTimeAfter(currentTime, headLastRotateTime, HEAD_AUTO_STOP_DELAY_TIME))
     {
       ESP_LOGD(TAG, "Auto stopping the rover");
       roverStop();

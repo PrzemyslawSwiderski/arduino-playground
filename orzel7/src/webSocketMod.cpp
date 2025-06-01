@@ -1,6 +1,7 @@
 #include "webSocketMod.h"
 #include "cameraMod.h"
 #include "roverMod.h"
+#include "headMod.h"
 #include "utilsMod.h"
 #include "wifiMod.h"
 #include "sleepMod.h"
@@ -58,6 +59,8 @@ static void sendInfo(uint8_t clientId)
 static const std::unordered_map<DataKey, std::function<void(uint8_t)>, DataKeyHash> simpleCommands = {
     {DataKey{(const uint8_t *)"stop", 4}, [](uint8_t clientId)
      { roverStop(); }},
+    {DataKey{(const uint8_t *)"rotate-stop", 11}, [](uint8_t clientId)
+     { rotateStop(); }},
     {DataKey{(const uint8_t *)"ledon", 5}, [](uint8_t clientId)
      { ledOn(); }},
     {DataKey{(const uint8_t *)"ledoff", 6}, [](uint8_t clientId)
@@ -90,6 +93,10 @@ static const std::unordered_map<DataKey, std::function<void(int)>, DataKeyHash> 
     {DataKey{(const uint8_t *)"back", 4}, roverBack},
     {DataKey{(const uint8_t *)"left", 4}, roverLeft},
     {DataKey{(const uint8_t *)"right", 5}, roverRight},
+    {DataKey{(const uint8_t *)"rotate-right", 12}, rotateRight},
+    {DataKey{(const uint8_t *)"rotate-left", 11}, rotateLeft},
+    {DataKey{(const uint8_t *)"rotate-up", 9}, rotateUp},
+    {DataKey{(const uint8_t *)"rotate-down", 11}, rotateDown},
 };
 
 // Command map for string value commands

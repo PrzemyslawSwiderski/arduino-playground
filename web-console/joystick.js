@@ -41,9 +41,8 @@ function moveJoystick(x, y) {
     const maxDistance = 150;
     const distanceScaled = Math.min(Number(((distance / maxDistance) * 100).toFixed(0)), 100);
 
-    let command = 'stop';
-
     const headControl = controlSwitch.checked;
+    let command =  headControl ? 'rotate-stop' : 'stop';
     const rightCmd = headControl ? 'rotate-right' : 'right';
     const backCmd = headControl ? 'rotate-down' : 'back';
     const leftCmd = headControl ? 'rotate-left' : 'left';
@@ -64,7 +63,9 @@ function resetJoystick() {
     joystick.style.left = `${center.x}px`;
     joystick.style.top = `${center.y}px`;
 
-    sendCmd('stop');
+    const headControl = controlSwitch.checked;
+    let stopCommand =  headControl ? 'rotate-stop' : 'stop';
+    sendCmd(stopCommand);
 }
 
 function updateJoystick() {

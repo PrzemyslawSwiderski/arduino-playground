@@ -3,6 +3,7 @@
 #include "pins.h"
 #include "cameraMod.h"
 #include "roverMod.h"
+#include "headMod.h"
 #include "wifiMod.h"
 #include "webSocketMod.h"
 #include "pirMod.h"
