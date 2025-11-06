@@ -5,6 +5,10 @@
 		},
 		{
 			"path": "orzel7"
+		},
+		{
+			"name": "drone-cam",
+			"path": "drone-cam"
 		}
 	],
 	"settings": {
@@ -104,7 +108,9 @@
 			"fstream": "cpp",
 			"future": "cpp",
 			"iostream": "cpp",
-			"esp_camera.h": "c"
+			"esp_camera.h": "c",
+			"esp_log.h": "c",
+			"freertos.h": "c"
 		}
 	}
 }
