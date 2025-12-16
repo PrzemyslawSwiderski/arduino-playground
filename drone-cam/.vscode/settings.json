@@ -1,0 +1,17 @@
+{
+  "files.associations": {
+    "ledc.h": "c",
+    "sdkconfig.h": "c",
+    "freertos.h": "c",
+    "example_config.h": "c",
+    "i2s_std.h": "c",
+    "esp_check.h": "c",
+    "i2c.h": "c",
+    "gpio.h": "c",
+    "gpio_etm.h": "c",
+    "esp_rom_gpio.h": "c",
+    "esp_intr_alloc.h": "c",
+    "task.h": "c",
+    "es8311.h": "c"
+  }
+}

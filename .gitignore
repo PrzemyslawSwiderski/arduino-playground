@@ -10,3 +10,6 @@ secrets.h
 
 # SPIFFS
 *.bin
+
+target/
+.pio

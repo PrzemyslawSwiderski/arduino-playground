@@ -1,16 +1,16 @@
 {
 	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "orzel7"
-		},
-		{
-			"name": "drone-cam",
-			"path": "drone-cam"
-		}
-	],
+    {
+      "path": "."
+    },
+    {
+      "path": "orzel7"
+    },
+    {
+      "name": "drone-cam",
+      "path": "drone-cam"
+    }
+  ],
 	"settings": {
 		"liveServer.settings.multiRootWorkspaceName": "arduino-playground",
 		"liveServer.settings.root": "/web-console",
