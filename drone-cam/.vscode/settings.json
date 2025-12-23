@@ -1,4 +1,5 @@
 {
+  "notifications.toast.enabled": false,
   "files.associations": {
     "ledc.h": "c",
     "sdkconfig.h": "c",
@@ -13,5 +14,22 @@
     "esp_intr_alloc.h": "c",
     "task.h": "c",
     "es8311.h": "c"
-  }
+  },
+  "idf.pythonInstallPath": "/usr/bin/python",
+  "idf.openOcdConfigs": [
+    "board/esp32p4-builtin.cfg"
+  ],
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32p4"
+  },
+  "clangd.path": "/home/pswidersk/.espressif/tools/esp-clang/esp-20.1.1_20250829/esp-clang/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=/home/pswidersk/.espressif/tools/riscv32-esp-elf/esp-15.2.0_20251204/riscv32-esp-elf/bin/riscv32-esp-elf-gcc",
+    "--compile-commands-dir=/home/pswidersk/REPOS/arduino-playground/drone-cam/build"
+  ],
+  "idf.flashType": "UART",
+  "idf.port": "/dev/ttyACM0",
+  "idf.espIdfPath": "/home/pswidersk/esp/esp-idf",
+  "idf.toolsPath": "/home/pswidersk/.espressif/tools"
 }
