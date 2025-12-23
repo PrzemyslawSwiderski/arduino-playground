@@ -1,4 +1,5 @@
 #include "bsp/esp-bsp.h"
+#include "esp_random.h"
 
 #define BUFFER_SIZE (512)
 #define DEFAULT_VOLUME (70)
@@ -6,22 +7,45 @@
 static const char *TAG = "MUSIC";
 static esp_codec_dev_handle_t spk_codec_dev = NULL;
 
-// Very simple WAV header, ignores most fields
-typedef struct __attribute__((packed))
+/* Available audio files */
+static const char *music_files[] = {
+    BSP_SPIFFS_MOUNT_POINT "/alive.wav",
+    BSP_SPIFFS_MOUNT_POINT "/audio.wav",
+};
+
+#define MUSIC_FILE_COUNT (sizeof(music_files) / sizeof(music_files[0]))
+
+/* WAV parsing structs */
+typedef struct
 {
-  uint8_t ignore_0[22];
+  char id[4]; // "RIFF"
+  uint32_t size;
+  char format[4]; // "WAVE"
+} riff_header_t;
+
+typedef struct
+{
+  char id[4]; // "fmt " or "data"
+  uint32_t size;
+} chunk_header_t;
+
+typedef struct
+{
+  uint16_t audio_format;
   uint16_t num_channels;
   uint32_t sample_rate;
-  uint8_t ignore_1[6];
+  uint32_t byte_rate;
+  uint16_t block_align;
   uint16_t bits_per_sample;
-  uint8_t ignore_2[4];
-  uint32_t data_size;
-  uint8_t data[];
-} dumb_wav_header_t;
+} fmt_chunk_t;
 
+/* WAV playback task */
 static void music_task(void *args)
 {
-  /* Initialize codec only once */
+  const char *filename = (const char *)args;
+  FILE *file = NULL;
+  int16_t *audio_buf = NULL;
+
   if (spk_codec_dev == NULL)
   {
     spk_codec_dev = bsp_audio_codec_speaker_init();
@@ -29,76 +53,116 @@ static void music_task(void *args)
     esp_codec_dev_set_out_vol(spk_codec_dev, DEFAULT_VOLUME);
   }
 
-  /* Pointer to a file that is going to be played */
-  // const char music_filename[] = BSP_SPIFFS_MOUNT_POINT "/16bit_mono_22_05khz.wav";
-  const char music_filename[] = BSP_SPIFFS_MOUNT_POINT "/alive.wav";
-  const char *play_filename = music_filename;
-  int16_t *wav_bytes = malloc(BUFFER_SIZE);
-  assert(wav_bytes != NULL);
+  ESP_LOGI(TAG, "Playing file %s", filename);
 
-  /* Open WAV file */
-  ESP_LOGI(TAG, "Playing file %s", play_filename);
-  FILE *play_file = fopen(play_filename, "rb");
-  if (play_file == NULL)
+  file = fopen(filename, "rb");
+  if (!file)
   {
-    ESP_LOGW(TAG, "%s file does not exist!", play_filename);
-    free(wav_bytes);
+    ESP_LOGW(TAG, "%s file does not exist!", filename);
     vTaskDelete(NULL);
     return;
   }
 
-  /* Read WAV header file */
-  dumb_wav_header_t wav_header;
-  if (fread((void *)&wav_header, 1, sizeof(wav_header), play_file) != sizeof(wav_header))
+  riff_header_t riff;
+  fread(&riff, sizeof(riff), 1, file);
+  if (memcmp(riff.id, "RIFF", 4) != 0 || memcmp(riff.format, "WAVE", 4) != 0)
   {
-    ESP_LOGW(TAG, "Error in reading file");
-    fclose(play_file);
-    free(wav_bytes);
+    ESP_LOGE(TAG, "Not a valid WAV file");
+    fclose(file);
     vTaskDelete(NULL);
     return;
   }
-  ESP_LOGI(TAG, "Number of channels: %" PRIu16 "", wav_header.num_channels);
-  ESP_LOGI(TAG, "Bits per sample: %" PRIu16 "", wav_header.bits_per_sample);
-  ESP_LOGI(TAG, "Sample rate: %" PRIu32 "", wav_header.sample_rate);
-  ESP_LOGI(TAG, "Data size: %" PRIu32 "", wav_header.data_size);
 
-  esp_codec_dev_sample_info_t fs = {
-      .sample_rate = wav_header.sample_rate,
-      .channel = wav_header.num_channels,
-      .bits_per_sample = wav_header.bits_per_sample,
-  };
-  esp_codec_dev_open(spk_codec_dev, &fs);
+  fmt_chunk_t fmt = {0};
+  uint32_t data_size = 0;
+  long data_offset = 0;
+  chunk_header_t chunk;
 
-  uint32_t bytes_send_to_i2s = 0;
-  while (bytes_send_to_i2s < wav_header.data_size)
+  /* Scan WAV chunks */
+  while (fread(&chunk, sizeof(chunk), 1, file) == 1)
   {
-    /* Get data from SPIFFS and send it to codec */
-    size_t bytes_read_from_spiffs = fread(wav_bytes, 1, BUFFER_SIZE, play_file);
-    if (bytes_read_from_spiffs > 0)
+    if (memcmp(chunk.id, "fmt ", 4) == 0)
     {
-      esp_codec_dev_write(spk_codec_dev, wav_bytes, bytes_read_from_spiffs);
-      bytes_send_to_i2s += bytes_read_from_spiffs;
+      fread(&fmt, sizeof(fmt), 1, file);
+      fseek(file, chunk.size - sizeof(fmt), SEEK_CUR);
+    }
+    else if (memcmp(chunk.id, "data", 4) == 0)
+    {
+      data_size = chunk.size;
+      data_offset = ftell(file);
+      break;
     }
     else
     {
-      break; // End of file or read error
+      fseek(file, chunk.size, SEEK_CUR);
     }
+  }
+
+  if (data_size == 0)
+  {
+    ESP_LOGE(TAG, "No data chunk found in WAV");
+    fclose(file);
+    vTaskDelete(NULL);
+    return;
+  }
+
+  ESP_LOGI(TAG, "Number of channels: %u", fmt.num_channels);
+  ESP_LOGI(TAG, "Bits per sample: %u", fmt.bits_per_sample);
+  ESP_LOGI(TAG, "Sample rate: %lu", fmt.sample_rate);
+  ESP_LOGI(TAG, "Data size: %lu", data_size);
+
+  esp_codec_dev_sample_info_t fs = {
+      .sample_rate = fmt.sample_rate,
+      .channel = fmt.num_channels, // mono or stereo as-is
+      .bits_per_sample = fmt.bits_per_sample,
+  };
+  esp_codec_dev_open(spk_codec_dev, &fs);
+
+  fseek(file, data_offset, SEEK_SET);
+
+  audio_buf = malloc(BUFFER_SIZE);
+  assert(audio_buf);
+
+  uint32_t bytes_sent = 0;
+  while (bytes_sent < data_size)
+  {
+    size_t to_read = BUFFER_SIZE;
+    if (bytes_sent + to_read > data_size)
+    {
+      to_read = data_size - bytes_sent;
+    }
+
+    size_t bytes_read = fread(audio_buf, 1, to_read, file);
+    if (bytes_read == 0)
+      break;
+
+    /* Send directly to codec without duplicating */
+    esp_codec_dev_write(spk_codec_dev, audio_buf, bytes_read);
+    bytes_sent += bytes_read;
   }
 
   ESP_LOGI(TAG, "Playback finished");
 
-  /* Clean up resources */
-  fclose(play_file);
-  free(wav_bytes);
-
-  /* Close codec but don't delete it - it can be reused */
+  free(audio_buf);
+  fclose(file);
   esp_codec_dev_close(spk_codec_dev);
 
-  /* Delete task - MUST be last thing in function */
   vTaskDelete(NULL);
 }
 
+/* Public API to start playback */
 void play_music()
 {
-  xTaskCreate(music_task, "music", 4096, NULL, 5, NULL);
+  uint32_t idx = esp_random() % MUSIC_FILE_COUNT;
+  const char *selected = music_files[idx];
+
+  ESP_LOGI(TAG, "Selected audio: %s", selected);
+
+  xTaskCreate(
+      music_task,
+      "music",
+      4096,
+      (void *)selected,
+      5,
+      NULL);
 }
