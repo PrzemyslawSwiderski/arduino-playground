@@ -8,8 +8,8 @@
       "sdkconfigFilePath": ""
     },
     "env": {},
-    "flashBaudRate": "921600",
     "idfTarget": "esp32p4",
+    "flashBaudRate": "921600",
     "monitorBaudRate": "115200",
     "openOCD": {
       "debugLevel": -1,

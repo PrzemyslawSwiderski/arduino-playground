@@ -1,3 +1,12 @@
 #pragma once
 
-void play_music();
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+  void play_music(void);
+
+#ifdef __cplusplus
+}
+#endif

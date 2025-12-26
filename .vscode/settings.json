@@ -2,5 +2,6 @@
   "idf.pythonInstallPath": "/usr/bin/python3",
   "idf.espIdfPath": "/home/pswidersk/esp/esp-idf",
   "idf.toolsPath": "/home/pswidersk/.espressif",
-  "cmake.sourceDirectory": "/home/pswidersk/REPOS/arduino-playground/drone-cam"
+  "cmake.sourceDirectory": "/home/pswidersk/REPOS/arduino-playground/drone-cam",
+  "idf.currentSetup": "/home/pswidersk/esp/esp-idf"
 }

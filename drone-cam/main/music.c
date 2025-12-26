@@ -9,8 +9,10 @@ static esp_codec_dev_handle_t spk_codec_dev = NULL;
 
 /* Available audio files */
 static const char *music_files[] = {
-    BSP_SPIFFS_MOUNT_POINT "/alive.wav",
-    BSP_SPIFFS_MOUNT_POINT "/audio.wav",
+    // BSP_SPIFFS_MOUNT_POINT "/alive.wav",
+    BSP_SD_MOUNT_POINT "/alive.wav",
+    // BSP_SPIFFS_MOUNT_POINT "/audio.wav",
+    BSP_SD_MOUNT_POINT "/audio.wav",
 };
 
 #define MUSIC_FILE_COUNT (sizeof(music_files) / sizeof(music_files[0]))

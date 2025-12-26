@@ -1,9 +1,9 @@
 dependencies:
   idf:
-    version: 6.1.0
-  esp_hal_cam:
-    path: ${IDF_PATH}/components/esp_hal_cam
-  espressif/esp_hosted: 2.8.0
+    version: 5.5.2
+  espressif/esp_hosted: 2.8.3
   espressif/esp_wifi_remote: 1.2.2
   espressif/esp_codec_dev: 1.5.4
-  espressif/esp32_p4_function_ev_board_noglib: 5.0.3
+  espressif/esp32_p4_function_ev_board_noglib: 5.1.2
+  espp/ftp: 1.0.33
+  espp/wifi: 1.0.33

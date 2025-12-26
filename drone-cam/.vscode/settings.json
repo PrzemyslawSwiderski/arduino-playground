@@ -30,6 +30,6 @@
   ],
   "idf.flashType": "UART",
   "idf.port": "/dev/ttyACM0",
-  "idf.espIdfPath": "/home/pswidersk/esp/esp-idf",
-  "idf.toolsPath": "/home/pswidersk/.espressif/tools"
+  "idf.toolsPath": "/home/pswidersk/.espressif",
+  "idf.currentSetup": "/home/pswidersk/.espressif/release-v5.5/esp-idf"
 }
