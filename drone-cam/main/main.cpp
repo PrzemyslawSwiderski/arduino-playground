@@ -1,13 +1,12 @@
 #include "bsp/esp-bsp.h"
-#include "esp_log.h"
-#include "music.h"
-#include "wifi.h"
 
 #include <chrono>
-#include "ftp_server.hpp"
+#include "logger.hpp"
 
-#include "ftp_task.hpp"
-#include "wifi_task.hpp"
+#include "music_mod.hpp"
+#include "ftp_mod.hpp"
+#include "wifi_mod.hpp"
+#include "control_mod.hpp"
 
 using namespace std::chrono_literals;
 
@@ -23,8 +22,9 @@ extern "C" void app_main()
 
   // init_wifi();
   wifi::start_wifi_task();
-  play_music();
+  music::play();
 
   // Start FTP server in separate FreeRTOS task
   ftp::start_server_task();
+  control::start_control_task();
 }
