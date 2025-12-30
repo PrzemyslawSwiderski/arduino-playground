@@ -36,12 +36,6 @@ namespace wifi
 
     wifi_sta = std::make_unique<espp::WifiSta>(wifi_config);
 
-    // Wait for connection (blocking, but quick)
-    while (!wifi_sta->is_connected())
-    {
-      std::this_thread::sleep_for(100ms);
-    }
-
     logger.info("WiFi init complete!");
   }
 

@@ -12,7 +12,7 @@ namespace music
 {
 
   static constexpr size_t BUFFER_SIZE = 512;
-  static constexpr int DEFAULT_VOLUME = 70;
+  static constexpr int DEFAULT_VOLUME = 90;
 
   static espp::Logger logger({.tag = "MUSIC", .level = espp::Logger::Verbosity::INFO});
   static esp_codec_dev_handle_t spk_codec_dev = nullptr;

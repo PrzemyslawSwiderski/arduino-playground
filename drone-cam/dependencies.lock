@@ -145,6 +145,16 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.0.33
+  espressif/cjson:
+    component_hash: 9372811fb197926f522c467627cf4a8e72b681e0366e17879631da801103aef3
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.7.19
   espressif/cmake_utilities:
     component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     dependencies:
@@ -344,6 +354,22 @@ dependencies:
       registry_url: https://components.espressif.com
       type: service
     version: 1.2.0~1
+  espressif/esp_new_jpeg:
+    component_hash: 2f06f88e94fbc781b26a9be4291ff4ffc88596c90436a1e1358a7a38296b44ae
+    dependencies: []
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    targets:
+    - esp32
+    - esp32s2
+    - esp32s3
+    - esp32p4
+    - esp32c2
+    - esp32c3
+    - esp32c5
+    - esp32c6
+    version: 1.0.0
   espressif/esp_sccb_intf:
     component_hash: 8345dc8ec72c38716f86bb439394aa3e6ae5b773078365016b009b3dba4549a8
     dependencies:
@@ -397,7 +423,7 @@ dependencies:
       - if: target in [esp32p4, esp32s3]
       version: 2.4.*
     source:
-      registry_url: https://components.espressif.com
+      registry_url: https://components.espressif.com/
       type: service
     targets:
     - esp32p4
@@ -481,11 +507,14 @@ dependencies:
 direct_dependencies:
 - espp/ftp
 - espp/wifi
+- espressif/cjson
 - espressif/esp32_p4_function_ev_board_noglib
 - espressif/esp_codec_dev
 - espressif/esp_hosted
+- espressif/esp_new_jpeg
+- espressif/esp_video
 - espressif/esp_wifi_remote
 - idf
-manifest_hash: e85a28cfa2b159e9a16eebf2039ba10cdfeee1919478de5c41e3b958159b20ea
+manifest_hash: 1272850c8fa8972d58bdbed19bcafbef16e7c0243614238b344cd2fc17db15d9
 target: esp32p4
 version: 2.0.0

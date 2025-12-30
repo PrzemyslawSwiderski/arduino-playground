@@ -2,8 +2,6 @@
 # in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.20)
 
-include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-
 # add the component directories that we want to use
 set(EXTRA_COMPONENT_DIRS
 
@@ -25,6 +23,8 @@ set(EXTRA_COMPONENT_DIRS
   # "/path/to/espp/components/"
 )
 
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
 set(
   COMPONENTS
   # NOTE: you can add additional esp-idf and espp components you want to use to
@@ -38,7 +38,7 @@ set(
   # e.g.
   #
   # `idf.py add-dependency "espp/task>=1.0"`
-  "main esptool_py"
+  "main esptool_py esp_http_server esp_driver_jpeg"
   CACHE STRING
   "List of components to include"
   )
