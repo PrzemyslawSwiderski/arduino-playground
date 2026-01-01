@@ -16,9 +16,7 @@ namespace ftp
     espp::Logger logger({.tag = "FTP", .level = espp::Logger::Verbosity::DEBUG});
 
     logger.info("Initializing FTP Server...");
-    ftp_server = std::make_unique<espp::FtpServer>(
-        "192.168.33.27", 21,
-        espp::FileSystem::get().get_root_path());
+    ftp_server = std::make_unique<espp::FtpServer>("192.168.1.13", 21, espp::FileSystem::get().get_root_path());
     ftp_server->start();
     logger.info("FTP Server started");
   }

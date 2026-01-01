@@ -9,7 +9,7 @@ set(EXTRA_COMPONENT_DIRS
   #       `components/` folder within this repository and update the line below
   #       to point to it.
   #
-  # "components/"
+  "components/gen_bmgr_codes"
 
   # NOTE: if we didn't use the idf-component-manager to get the espp
   #       dependencies, we could instead have ESPP be a submodule within our
@@ -38,7 +38,7 @@ set(
   # e.g.
   #
   # `idf.py add-dependency "espp/task>=1.0"`
-  "main esptool_py esp_http_server esp_driver_jpeg"
+  "main esptool_py esp_http_server esp_driver_jpeg gen_bmgr_codes"
   CACHE STRING
   "List of components to include"
   )

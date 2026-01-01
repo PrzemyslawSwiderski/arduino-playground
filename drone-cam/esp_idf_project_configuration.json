@@ -7,12 +7,14 @@
       "sdkconfigDefaults": [],
       "sdkconfigFilePath": ""
     },
-    "env": {},
+    "env": {
+      "IDF_EXTRA_ACTIONS_PATH": "/home/pswidersk/REPOS/arduino-playground/drone-cam/managed_components/espressif__esp_board_manager"
+    },
     "idfTarget": "esp32p4",
     "flashBaudRate": "921600",
     "monitorBaudRate": "115200",
     "openOCD": {
-      "debugLevel": -1,
+      "debugLevel": 2,
       "configs": [],
       "args": []
     },
