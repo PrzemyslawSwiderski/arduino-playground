@@ -3,12 +3,12 @@
 #include <chrono>
 #include "logger.hpp"
 
-#include "music_mod.h"
 #include "ftp_mod.hpp"
 #include "wifi_mod.hpp"
 // #include "control_mod.hpp"
 // #include "cam_server.h"
 #include "video_mod.h"
+#include "music_player.hpp"
 
 #include "esp_board_manager.h"
 #include "esp_gmf_app_cli.h"
@@ -33,8 +33,15 @@ extern "C" void app_main()
   esp_board_manager_init();
 
   esp_gmf_app_cli_init("drone-cam> ", NULL);
-  play_music();
 
+  // play_music();
+
+  // Create and initialize player
+  auto player = std::make_unique<audio::MusicPlayer>();
+  player->initialize();
+
+  // Play music
+  player->play("/sdcard/test.mp3");
   // monitor tasks periodicaly
   // esp_gmf_app_sys_monitor_start();
 
